@@ -1,0 +1,29 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "lib",
+    "module": "es2015",
+    "target": "es2015",
+    "sourceMap": true,
+    "outDir": "lib",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "allowUnreachableCode": false,
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "lib": [ "es5", "dom" ],
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": false,
+    "forceConsistentCasingInFileNames": true    
+  }
+}
