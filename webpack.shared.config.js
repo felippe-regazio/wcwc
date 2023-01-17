@@ -8,7 +8,10 @@ const NANOJSX_DEPS = fs.readdirSync(path.resolve(__dirname, 'node_modules', 'nan
 
 module.exports = [
   {
-    entry: [ 'nano-jsx', ...NANOJSX_DEPS ],
+    entry: [ 
+      'nano-jsx',
+      ...NANOJSX_DEPS,
+    ],
     output: {
       library: 'shared',
       filename: 'shared.js',

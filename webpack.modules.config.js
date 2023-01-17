@@ -4,7 +4,9 @@ const glob = require('glob');
 const SRC_FOLDER = path.resolve(__dirname, 'src');
 
 const MODULES_LIST = ['tsx', 'ts'].reduce((list, ext) => {
-  return list.concat(glob.sync(path.resolve(SRC_FOLDER, '**', `*.${ext}`)));
+  return list
+    .concat(glob.sync(path.resolve(SRC_FOLDER, '**', `*.${ext}`)))
+    .filter(item => !item.endsWith('.d.ts'));
 }, []);
 
 module.exports = (_env, argv) => {
@@ -31,10 +33,17 @@ module.exports = (_env, argv) => {
       module: {
         rules: [
           {
+            test: /\.s[ac]ss$/i,
+            use: [
+              "css-loader",
+              "sass-loader"
+            ],
+          },
+          {
             test: /\.tsx?$/,
             exclude: /(node_modules)/,
             use: {  loader: 'ts-loader' }
-          }
+          },
         ]
       },
       output: {
