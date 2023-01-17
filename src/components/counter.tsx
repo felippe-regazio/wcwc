@@ -1,14 +1,18 @@
-import s from './style.scss';
 import { h, Fragment, WC } from '../core';
+import style from './style.scss';
 
 class MyComponent extends WC {
-  styles = [ s ];
-  $count = 0;
+  protected shadow?: ShadowRootInit | undefined;
+  protected styles: '*.scss'[] = [ style ];
+  
+  protected state: any = {
+    count: 0
+  };
 
   template() {
     return (
       <>
-        <h1>{this.$count}</h1>
+        <h1>{this.state.count}</h1>
         <button onClick={this.inc}>+ Inc</button>
         <button onClick={this.dec}>- Dec</button>
       </>
@@ -16,11 +20,11 @@ class MyComponent extends WC {
   }
 
   inc() {
-    this.$count++
+    this.state.count++
   }
 
   dec() {
-    this.$count--;
+    this.state.count--;
   }
 }
 

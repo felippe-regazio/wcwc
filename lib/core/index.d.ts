@@ -3,7 +3,7 @@ export declare const WC_REGISTERED_STYLES: {
 };
 export declare class WC extends HTMLElement {
     protected shadow?: ShadowRootInit;
-    protected styles?: "*.scss"[];
+    protected styles?: '*.scss'[];
     connectedCallback(): void;
     protected root(): this | ShadowRoot | null;
     protected addStyle(): Promise<void>;

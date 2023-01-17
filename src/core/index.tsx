@@ -6,7 +6,7 @@ export const WC_REGISTERED_STYLES: {
 
 export class WC extends HTMLElement {
   protected shadow?: ShadowRootInit;
-  protected styles?: "*.scss"[];
+  protected styles?: '*.scss'[];
   
   connectedCallback() {
     this.addStyle().catch(console.error);
