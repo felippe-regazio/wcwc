@@ -2,18 +2,17 @@ export declare const WC_REGISTERED_STYLES: {
     [tagName: string]: string;
 };
 export declare class WC extends HTMLElement {
-    private __template;
+    protected $store?: unknown;
     protected $shadow?: ShadowRootInit;
-    protected $styles?: '*.scss'[];
-    protected $store: unknown;
+    protected $style?: '*.scss'[];
+    protected $children: ChildNode[];
     connectedCallback(): void;
+    protected render(): void;
     protected root(): this | ShadowRoot | null;
-    protected render(): Promise<void>;
-    private domDiff;
     private addStyles;
-    protected reactiveStore(data?: {}): any;
+    private createStore;
+    protected $attrs(defaults?: unknown): unknown;
     static expose(tagname: string): void;
-    protected template(): string;
+    protected $template(): string;
 }
-export * from 's-js';
 export * from 'nano-jsx';

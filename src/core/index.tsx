@@ -5,15 +5,25 @@ export const WC_REGISTERED_STYLES: {
 } = {};
 
 export class WC extends HTMLElement {
-  private __template: any;
-
+  protected $store?: unknown;
   protected $shadow?: ShadowRootInit;
-  protected $styles?: '*.scss'[];
-  protected $store: unknown;
+  protected $style?: '*.scss'[];
+  protected $children: ChildNode[] = Array.from(this.childNodes);
   
   connectedCallback() {
-    this.$store = this.$store && this.reactiveStore(this.$store);
+    this.createStore();
     this.render();
+  }
+
+  protected render() {
+    try {
+      const target = this.root() as HTMLElement;
+      const template: any = this.$template();
+      _render(template, target);
+      this.addStyles();
+    } catch(error) {
+      console.error(error);
+    }
   }
 
   protected root() {
@@ -23,31 +33,6 @@ export class WC extends HTMLElement {
 
     return this.$shadow ? this.shadowRoot : this;
   }
-  
-  protected async render() {
-    try {
-      const target = this.root() as HTMLElement;
-      const template = this.domDiff(this.__template, this.template());
-      /** */
-      _render(template, target);
-      /** */
-      this.addStyles();
-      Promise.resolve(true);
-    } catch(error) {
-      Promise.reject(error);
-    }
-  }
-
-  private domDiff(a: any, b: any) {
-    if (!a) {
-      this.__template = b;
-      return b;
-    }
-
-    // DO DIFF
-
-    return b;
-  }
 
   private addStyles() {
     try {
@@ -55,9 +40,9 @@ export class WC extends HTMLElement {
         return false;
       }
       
-      if ((this.$styles && this.$styles.length) && (this.$shadow || !WC_REGISTERED_STYLES[this.tagName])) {
+      if ((this.$style && this.$style.length) && (this.$shadow || !WC_REGISTERED_STYLES[this.tagName])) {
         const styleRoot = this.$shadow ? this.root() : window.document ? (window.document?.head || window.document?.body) : this;
-        const style: string = this.$styles && this.$styles.map((s: '*.scss') => s.toString()).join('') || '';
+        const style: string = this.$style && this.$style.map((s: '*.scss') => s.toString()).join('') || '';
         const styleElement = Object.assign(document.createElement('style'), { textContent: style });
 
         styleElement.dataset.target = this.tagName.toLowerCase();
@@ -72,29 +57,68 @@ export class WC extends HTMLElement {
     }
   }
 
-  protected reactiveStore(data = {}) {
-    return new Proxy(data, {
-      get: (obj: any, prop: any) => {
-        if (prop === '_isProxy') return true;
-        if (['object', 'array'].includes(Object.prototype.toString.call(obj[prop]).slice(8, -1).toLowerCase()) && !obj[prop]._isProxy) {
-          obj[prop] = new Proxy(obj[prop], this.reactiveStore(data));
+  private createStore() {
+    const proxyStoreData = (data = {}, cb?: Function) => {
+      return new Proxy(data, {
+        get: (obj: any, prop: any) => {
+          if (prop === '_isProxy') {
+            return true;
+          }
+  
+          if (Array.isArray(obj[prop]) || typeof obj[prop] === 'object' && !obj[prop]._isProxy) {
+            obj[prop] = proxyStoreData(obj[prop], cb);
+          }
+  
+          if (typeof obj[prop] === 'function') {
+            return obj[prop]();
+          }
+          
+          return obj[prop];
+        },
+  
+        set: (obj: any, prop: any, value: any) => {
+          if (obj[prop] === value) {
+            return true
+          };
+  
+          obj[prop] = value;
+          cb && cb();
+          return true;
+        },
+  
+        deleteProperty: (obj: any, prop: any) => {
+          delete obj[prop];
+          cb && cb();
+          return true;
         }
-        return obj[prop];
-      },
+      });
+    };
 
-      set: (obj: any, prop: any, value: any) => {
-        if (obj[prop] === value) return true;
-        obj[prop] = value;
-        this.render().catch(console.error);
-        return true;
-      },
+    this.$store = proxyStoreData(this.$store || {}, () => this.render());
+  }
 
-      deleteProperty: (obj: any, prop: any) => {
-        delete obj[prop];
-        this.render().catch(console.error);
-        return true;
+  protected $attrs(defaults?: unknown) {
+    const $props: unknown = defaults || {};
+
+    Object.keys(defaults || {}).forEach((prop: string) => {
+      if (this.hasAttribute(prop)) {
+        ($props as any)[prop] = this.getAttribute(prop) || (defaults as any)[prop];
       }
     });
+
+    new MutationObserver( (mutations: MutationRecord[]) => {
+      mutations.forEach((m: MutationRecord) => {
+        const attr: string|null = m.attributeName;
+
+        if (attr) {
+          ($props as any)[attr] = this.getAttribute(attr);
+        }
+      });
+
+      this.render();
+    }).observe(this, { attributes: true });
+
+    return $props;
   }
   
   public static expose(tagname: string) {
@@ -103,8 +127,7 @@ export class WC extends HTMLElement {
     }
   }
   
-  protected template() { return '' }
+  protected $template() { return '' }
 }
 
-export * from 's-js';
 export * from 'nano-jsx';

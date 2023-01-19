@@ -9,7 +9,6 @@ const NANOJSX_DEPS = fs.readdirSync(path.resolve(__dirname, 'node_modules', 'nan
 module.exports = [
   {
     entry: [ 
-      's-js',
       'nano-jsx',
       ...NANOJSX_DEPS,
     ],
