@@ -10,8 +10,7 @@ module.exports = [
   {
     entry: [ 
       'nano-jsx',
-      ...NANOJSX_DEPS,
-      path.resolve(__dirname, 'src', 'core', 'expose.tsx')
+      ...NANOJSX_DEPS
     ],
     module: {
       rules: [
@@ -33,6 +32,11 @@ module.exports = [
         name: 'runtime',
         path: path.resolve(__dirname, 'lib', 'runtime', 'runtime-manifest.json')
       })
+
+      // consumer:
+      // new webpack.DllReferencePlugin({
+      //   manifest: path.resolve(__dirname, 'lib', 'runtime', 'runtime-manifest.json')
+      // })      
     ]
   }
 ];

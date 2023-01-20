@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const path = require('path');
 const glob = require('glob');
 const SRC_FOLDER = path.resolve(__dirname, 'src');
@@ -25,18 +24,22 @@ module.exports = (_env, argv) => {
         symlinks: true,
         extensions: ['.ts', '.tsx', '.js']
       },
-      plugins: [
-        new webpack.DllReferencePlugin({
-          manifest: path.resolve(__dirname, 'lib', 'runtime', 'runtime-manifest.json')
-        })
-      ],   
       module: {
-        rules: [
+        rules: [          
           {
             test: /\.s[ac]ss$/i,
             use: [
-              "css-loader",
-              "sass-loader"
+              { 
+                loader: "css-loader", 
+                options: {
+                  url: false,                  
+                  importLoaders: 1,
+                  sourceMap: mode === 'development'
+                },
+              },
+              { 
+                loader: "sass-loader"
+              },
             ],
           },
           {
