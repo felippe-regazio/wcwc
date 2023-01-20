@@ -13,12 +13,12 @@ class Counter extends WC {
       <>
         <h1>{this.data.count}</h1>
 
-        <button onclick={() => this.data.count++}>
-          Inc
-        </button>
-
         <button onclick={() => this.data.count--}>
           Dec
+        </button>
+        
+        <button onclick={() => this.data.count++}>
+          Inc
         </button>
 
         { this.props.children }      

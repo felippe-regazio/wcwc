@@ -27,7 +27,7 @@ module.exports = (_env, argv) => {
       },
       plugins: [
         new webpack.DllReferencePlugin({
-          manifest: path.resolve(__dirname, 'lib', 'shared', 'shared-manifest.json')
+          manifest: path.resolve(__dirname, 'lib', 'runtime', 'runtime-manifest.json')
         })
       ],   
       module: {

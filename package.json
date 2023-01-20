@@ -5,9 +5,9 @@
   "scripts": {
     "clear": "rimraf --sync ./lib",
     "serve": "npx live-server . --cors --host=localhost",
-    "dev": "npm run clear && npm run generate-shared-dependencies && webpack -c ./webpack.modules.config.js --watch --mode=development",
-    "build": "npm run clear && npm run generate-shared-dependencies && webpack -c ./webpack.modules.config.js --mode=production",
-    "generate-shared-dependencies": "webpack -c ./webpack.shared.config.js --mode=production"
+    "dev": "npm run clear && npm run generate-runtime && webpack -c ./webpack.modules.config.js --watch --mode=development",
+    "build": "npm run clear && npm run generate-runtime && webpack -c ./webpack.modules.config.js --mode=production",
+    "generate-runtime": "webpack -c ./webpack.runtime.config.js --mode=production"
   },
   "keywords": [],
   "author": "Felippe Regazio",

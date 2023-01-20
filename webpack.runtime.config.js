@@ -23,15 +23,15 @@ module.exports = [
       ]
     },
     output: {
-      library: 'shared',
-      filename: 'shared.js',
+      library: 'runtime',
+      filename: 'runtime.js',
       libraryTarget: 'umd',
-      path: path.resolve(__dirname, 'lib', 'shared')
+      path: path.resolve(__dirname, 'lib', 'runtime')
     },
     plugins: [
       new webpack.DllPlugin({
-        name: 'shared',
-        path: path.resolve(__dirname, 'lib', 'shared', 'shared-manifest.json')
+        name: 'runtime',
+        path: path.resolve(__dirname, 'lib', 'runtime', 'runtime-manifest.json')
       })
     ]
   }
