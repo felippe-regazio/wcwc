@@ -1,3 +1,30 @@
-:root {
-  background-color: blue;
+my-custom-element {
+  display: block;
+  padding: 16px;
+  margin: 8px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background-color: rgba(100, 100, 100, .5);
+
+  * {
+    box-sizing: border-box;
+  }
+
+  h1 {
+    padding: 8px;
+  }
+
+  p {
+    color: #fff;
+  }
+
+  button {
+    padding: 16px;
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    margin: 8px;
+  }
 }

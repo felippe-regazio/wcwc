@@ -1,46 +1,30 @@
-import { h, Fragment, WC } from '../core';
+import { h, WC, Fragment } from '../core';
 import style from './style.scss';
 
-class MyComponent extends WC {
-  protected $shadow?: ShadowRootInit = { mode: 'open' };
-  $style = [ style ];
+class Counter extends WC {
+  static styles = [ style ];
 
-  $props: any = this.$attrs({
-    start: 0
+  data: { count: number } = this.$({
+    count: 0
   });
 
-  $store: { count: (()=>number)|number } = {
-    count: () => this.$props.start
-  };
-
-  $template() {
+  render() {
     return (
       <>
-        <p>Started at: {this.$props.start}</p>
+        <h1>{this.data.count}</h1>
 
-        <p class={`hello world`} onclick={console.log}>
-          { this.$store.count }
-        </p>
+        <button onclick={() => this.data.count++}>
+          Inc
+        </button>
 
-        {this.$store.count === 2 &&
-          <p>ZERO</p>
-        }
+        <button onclick={() => this.data.count--}>
+          Dec
+        </button>
 
-        <button onclick={() => this.inc()}>+ Inc</button>
-        <button onclick={() => this.dec()}>- Dec</button>
-        <hr />
-        {this.$children}
+        { this.props.children }      
       </>
     )
-  };
-
-  inc() {
-    (this.$store.count as number)++
-  };
-
-  dec() {
-    (this.$store.count as number)--;
-  };
+  }
 }
 
-MyComponent.expose('my-custom-element');
+Counter.expose('my-custom-element');

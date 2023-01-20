@@ -11,7 +11,17 @@ module.exports = [
     entry: [ 
       'nano-jsx',
       ...NANOJSX_DEPS,
+      path.resolve(__dirname, 'src', 'core', 'expose.tsx')
     ],
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          exclude: /(node_modules)/,
+          use: {  loader: 'ts-loader' }
+        }
+      ]
+    },
     output: {
       library: 'shared',
       filename: 'shared.js',
