@@ -45,14 +45,12 @@ export const defineAsCustomElements: (
 
       let ref;
 
-      const children = Array.from(this.children).map(c => render(c));
-
       const el = this.buildEl(
         _render({
           component,
           props: {
-            children: children,
-            ref: (r: any) => (ref = r)
+            ref: (r: any) => (ref = r),
+            children: Array.from(this.childNodes).map(c => render(c))
           }
         })
       );
@@ -93,15 +91,13 @@ export const defineAsCustomElements: (
         el.dataset.wcRoot = true;
         this.$root.append(el);
       } else {
-        this.$root.append(...el.children);
+        this.$root.append(...el.childNodes);
       }
     }
 
-    private removeChildren() {
-      if (this.$root) {
-        const children = Array.from(this.$root.children) || [];
-        
-        for (const el of children) {
+    private removeChildNodes() {
+      if (this.$root) {        
+        for (const el of (Array.from(this.$root.childNodes) || [])) {
           el.remove();
         }
       }
@@ -112,7 +108,7 @@ export const defineAsCustomElements: (
         this.component.updatePropsValue(name, newValue);
         this.component.update();
       } else {
-        this.removeChildren();
+        this.removeChildNodes();
         this.functionalComponentsProps[name] = newValue;
 
         const el = this.buildEl(
