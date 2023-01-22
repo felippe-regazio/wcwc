@@ -26,10 +26,8 @@ export const defineAsCustomElements: (
   }
 
   customElements.define(componentName, class extends HTMLElement {
-    component: any;
-    $root: ShadowRoot|HTMLElement;
-    private isFunctionalComponent: boolean;
-    private functionalComponentsProps: any;
+    nanoComponentRef: any;
+    $root: ShadowRoot|HTMLElement;    
 
     constructor() {
       super();
@@ -37,24 +35,22 @@ export const defineAsCustomElements: (
       this.addStaticStyles(component.styles).catch(console.error);
       this.$root = this.root();
 
-      let ref;
-
       const el = this.buildEl(
         _render({
           component,
           props: {
-            ref: (r: any) => (ref = r),
+            ref: (r: any) => (this.nanoComponentRef = r),
             children: Array.from(this.childNodes).map(c => render(c)),
             ...(this.getInitialProps() || {})
           }
         })
       );
       
-      // --------------------------------------- first render
-      this.component = ref;
-      this.isFunctionalComponent = !component.isClass;
-      this.functionalComponentsProps = {};
       this.appendEl(el);
+    }
+
+    static get observedAttributes() {
+      return component.attrs;
     }
 
     private root() {
@@ -76,10 +72,6 @@ export const defineAsCustomElements: (
       }, {});
     }
 
-    static get observedAttributes() {
-      return component.attrs;
-    }
-
     private buildEl(contents: any) {
       // because nano-jsx update need parentElement, we need 
       // to wrap the element in a div when using shadow mode
@@ -95,35 +87,9 @@ export const defineAsCustomElements: (
       }
     }
 
-    private removeChildNodes() {
-      if (this.$root) {        
-        for (const el of (Array.from(this.$root.childNodes) || [])) {
-          el.remove();
-        }
-      }
-    }
-
     attributeChangedCallback(name: string, _: any, newValue: any) {   
-      if (!this.isFunctionalComponent) {
-        this.component.props[name] = newValue;
-        this.component.update();
-      } else {
-        this.removeChildNodes();
-        this.functionalComponentsProps[name] = newValue;
-
-        const el = this.buildEl(
-          _render({
-            component,
-            props: {
-              children: [],
-              ref: (r: any) => (this.component = r),
-              ...this.functionalComponentsProps
-            }
-          })
-        );
-
-        this.appendEl(el);
-      }
+      this.nanoComponentRef.props[name] = newValue;
+      this.nanoComponentRef.update();
     }
 
     private async addStaticStyles(styles: '*.scss'[]) {
