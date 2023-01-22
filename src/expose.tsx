@@ -7,7 +7,6 @@ export const WC_REGISTERED_STYLES: {
 const defineAsCustomElementsSSR = (
   component: any, 
   componentName: string, 
-  _publicProps: string[] = [], 
   _options: any = {}
 ) => {
   (!/^[a-zA-Z0-9]+-[a-zA-Z0-9]+$/.test(componentName)) ?
@@ -18,11 +17,10 @@ const defineAsCustomElementsSSR = (
 export const defineAsCustomElements: (
   component: any,
   componentName: string,
-  publicProps: string[],
   shadow?: ShadowRootInit
-) => void = function (component, componentName, publicProps, shadow) {
+) => void = function (component, componentName, shadow) {
   if (isSSR()) {
-    defineAsCustomElementsSSR(component, componentName, publicProps);
+    defineAsCustomElementsSSR(component, componentName);
     
     return;
   }
@@ -36,12 +34,8 @@ export const defineAsCustomElements: (
     constructor() {
       super();
 
-      if (shadow) {
-        this.attachShadow(shadow);
-        this.$root = this.shadowRoot as ShadowRoot;
-      } else {
-        this.$root = this;
-      }
+      this.addStaticStyles(component.styles).catch(console.error);
+      this.$root = this.root();
 
       let ref;
 
@@ -50,7 +44,8 @@ export const defineAsCustomElements: (
           component,
           props: {
             ref: (r: any) => (ref = r),
-            children: Array.from(this.childNodes).map(c => render(c))
+            children: Array.from(this.childNodes).map(c => render(c)),
+            ...(this.getInitialProps() || {})
           }
         })
       );
@@ -60,24 +55,29 @@ export const defineAsCustomElements: (
       this.isFunctionalComponent = !component.isClass;
       this.functionalComponentsProps = {};
       this.appendEl(el);
-      this.addStaticStyles(component.styles);
-      // ---------------------------------------
+    }
 
-      if (!this.isFunctionalComponent) {
-        this.component.updatePropsValue = (name: string, value: any) => {
-          // @ts-ignore
-          if (!this.component.props) {
-            this.component.props = {};
-          }
-
-          this.component.props[name] = value;
-          this.component[name] = value;
-        }
+    private root() {
+      if (shadow) {
+        this.attachShadow(shadow);
+        return this.shadowRoot as ShadowRoot;
+      } else {
+        return this;
       }
     }
 
+    private getInitialProps() {
+      return (component.attrs || []).reduce((acc: any, attr: string) => {
+        if (this.hasAttribute(attr)) {
+          acc[attr] = this.getAttribute(attr);
+        }
+
+        return acc;
+      }, {});
+    }
+
     static get observedAttributes() {
-      return publicProps
+      return component.attrs;
     }
 
     private buildEl(contents: any) {
@@ -103,9 +103,9 @@ export const defineAsCustomElements: (
       }
     }
 
-    attributeChangedCallback(name: string, _: any, newValue: any) {        
+    attributeChangedCallback(name: string, _: any, newValue: any) {   
       if (!this.isFunctionalComponent) {
-        this.component.updatePropsValue(name, newValue);
+        this.component.props[name] = newValue;
         this.component.update();
       } else {
         this.removeChildNodes();
@@ -126,7 +126,7 @@ export const defineAsCustomElements: (
       }
     }
 
-    private addStaticStyles(styles: '*.scss'[]) {
+    private async addStaticStyles(styles: '*.scss'[]) {
       try {
         if (typeof window === 'undefined') {
           return false;
@@ -149,8 +149,10 @@ export const defineAsCustomElements: (
             }
           }
         }
+
+        return Promise.resolve(true);
       } catch(error) {
-        return true;
+        return Promise.reject(error);
       }
     }    
   })

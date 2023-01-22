@@ -3,12 +3,14 @@ import style from './style.scss';
 
 class Counter extends WC {
   static styles = [ style ];
+  static attrs = [ 'start' ];
 
   data: { count: number } = this.$({
-    count: 0
+    count: this.props.start
   });
 
   render() {
+    console.log(this.props);
     return (
       <>
         <h1>{this.data.count}</h1>

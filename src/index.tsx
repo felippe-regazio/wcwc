@@ -3,6 +3,7 @@ import { defineAsCustomElements } from './expose';
 
 export class WC extends Component {
   static styles?: '*.scss'[];
+  static attrs?: string[];
 
   $(v: unknown): any {
     const state = (data = {}, cb?: Function) => {
@@ -44,7 +45,6 @@ export class WC extends Component {
     defineAsCustomElements(
       this,     // nano component name
       tagname,  // custom element name
-      [],       // custom component props to observe (optional)
       shadow    // shadow dom mode (optional)
     );
   }
