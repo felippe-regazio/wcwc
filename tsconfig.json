@@ -6,7 +6,7 @@
     "noEmit": false,
     "declaration": true,
     "declarationDir": "lib",
-    "module": "es2015",
+    "module": "commonjs",
     "target": "es2015",
     "sourceMap": true,
     "outDir": "lib",

@@ -5,7 +5,7 @@ export class WC extends Component {
   static styles?: '*.scss'[];
   static attrs?: string[];
 
-  $(v: unknown): any {
+  $(v: object): any {
     const state = (data = {}, cb?: Function) => {
       return new Proxy(data, {
         get: (obj: any, prop: any) => {
