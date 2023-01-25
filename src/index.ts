@@ -43,11 +43,12 @@ export class WC extends Component {
 
   public static expose(tagname: string, shadow?: ShadowRootInit) {
     defineAsCustomElements(
-      this,     // nano component name
-      tagname,  // custom element name
-      shadow    // shadow dom mode (optional)
+      this,    // nano component
+      tagname, // custom element name
+      shadow   // shadow dom mode (optional)
     );
   }
 }
 
-export * from 'nano-jsx';
+export { h } from 'nano-jsx/lib/core';
+export { Fragment } from 'nano-jsx/lib/fragment';

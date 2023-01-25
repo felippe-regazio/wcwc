@@ -1,6 +1,6 @@
 {
   "include": [ "src/index.ts" ],
-  "exclude": [ "node_modules" ],
+  "exclude": ["node_modules", "*.scss"],
 
   "compilerOptions": {
     "noEmit": false,
@@ -19,6 +19,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "lib": [ "es5", "dom" ],
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true    

@@ -1,8 +1,5 @@
+import { loadStyles } from './load-styles';
 import { h, isSSR, render, _render } from 'nano-jsx/lib/core';
-
-export const WC_REGISTERED_STYLES: {
-  [tagName: string]: string
-} = {};
 
 const defineAsCustomElementsSSR = (
   component: any, 
@@ -31,10 +28,14 @@ export const defineAsCustomElements: (
 
     constructor() {
       super();
-
-      this.addStaticStyles(component.styles).catch(console.error);
       this.$root = this.root();
 
+      loadStyles(
+        this.tagName.toLocaleLowerCase(), 
+        component.styles,
+        this.$root
+      ).catch(void 0);
+      
       const el = this.buildEl(
         _render({
           component,
@@ -72,6 +73,18 @@ export const defineAsCustomElements: (
       }, {});
     }
 
+    private async setCSSProp(name: string, value: string|null): Promise<boolean> {
+      return new Promise((resolve, reject) => {
+        try {
+          this.style.setProperty(`wc-props-${name}`, String(value) || '');
+          return resolve(true);
+        } catch(error) {
+          console.error(error);
+          return reject(false);
+        }
+      })
+    }
+
     private buildEl(contents: any) {
       // because nano-jsx update need parentElement, we need 
       // to wrap the element in a div when using shadow mode
@@ -90,36 +103,7 @@ export const defineAsCustomElements: (
     attributeChangedCallback(name: string, _: any, newValue: any) {   
       this.nanoComponentRef.props[name] = newValue;
       this.nanoComponentRef.update();
+      this.setCSSProp(name, newValue).catch(void 0);
     }
-
-    private async addStaticStyles(styles: '*.scss'[]) {
-      try {
-        if (typeof window === 'undefined') {
-          return false;
-        }
-        
-        if ((styles && styles.length) && (this.shadowRoot || !WC_REGISTERED_STYLES[this.tagName])) {
-          const styleRoot = this.shadowRoot ? this.$root : window.document ? (window.document?.head || window.document?.body) : this;
-          const style: string = (styles && styles.map((s: '*.scss') => s.toString()).join('') || '').trim();
-
-          if (style) {
-            const styleElement = Object.assign(document.createElement('style'), { 
-              textContent: style 
-            });
-
-            styleElement.dataset.target = this.tagName.toLowerCase();
-            styleRoot?.append(styleElement);
-    
-            if (!this.shadowRoot) {
-              WC_REGISTERED_STYLES[this.tagName] = style;          
-            }
-          }
-        }
-
-        return Promise.resolve(true);
-      } catch(error) {
-        return Promise.reject(error);
-      }
-    }    
   })
 }

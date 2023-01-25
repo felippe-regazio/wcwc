@@ -1,13 +1,17 @@
 {
-  "name": "agnostic",
+  "name": "wcwc",
   "version": "1.0.0",
-  "description": "",
+  "description": "Write Clever Web Components",
+  "main": "lib/index.js",
+  "types": "lib/d.ts/",
+  "files": [
+    "lib",
+    "usr"
+  ],
   "scripts": {
     "clear": "rimraf --sync ./lib",
-    "serve": "npx live-server . --cors --host=localhost",
     "dev": "npm run clear && webpack --watch --mode=development",
-    "build": "npm run clear && webpack --mode=production",
-    "generate-runtime": "webpack -c ./webpack.runtime.config.js --mode=production"
+    "build": "npm run clear && webpack --mode=production"
   },
   "keywords": [],
   "author": "Felippe Regazio",
@@ -16,6 +20,7 @@
     "autoprefixer": "^10.4.13",
     "css-loader": "^6.7.3",
     "cssnano": "^5.1.14",
+    "expose-loader": "^4.0.0",
     "glob": "^8.0.3",
     "mini-css-extract-plugin": "^2.7.2",
     "nano-jsx": "^0.0.36",
