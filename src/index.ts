@@ -1,7 +1,12 @@
 import { Component } from 'nano-jsx';
 import { defineAsCustomElements } from './expose';
+import { h } from 'nano-jsx/lib/core';
+import { Fragment } from 'nano-jsx/lib/fragment';
 
 export class WC extends Component {
+  static h: typeof h = h;
+  static f: typeof Fragment = Fragment;
+
   static styles?: '*.scss'[];
   static attrs?: string[];
 
@@ -50,5 +55,4 @@ export class WC extends Component {
   }
 }
 
-export { h } from 'nano-jsx/lib/core';
-export { Fragment } from 'nano-jsx/lib/fragment';
+export const wcwc = { WC }

@@ -17,8 +17,8 @@
     "noUnusedParameters": true,
     "lib": [ "es5", "dom" ],
     "jsx": "react",
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
+    "jsxFactory": "WC.h",
+    "jsxFragmentFactory": "WC.f",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true    
