@@ -1,12 +1,12 @@
 {
   "name": "wcwc",
   "version": "1.0.0",
-  "description": "Write Clever Web Components",
+  "description": "Write Cool Web Components",
   "main": "lib/index.js",
   "types": "lib/d.ts/",
   "files": [
-    "lib",
-    "usr"
+    "lib/*",
+    "usr/*"
   ],
   "scripts": {
     "clear": "rimraf --sync ./lib",
@@ -17,19 +17,8 @@
   "author": "Felippe Regazio",
   "license": "MIT",
   "devDependencies": {
-    "autoprefixer": "^10.4.13",
-    "css-loader": "^6.7.3",
-    "cssnano": "^5.1.14",
-    "expose-loader": "^4.0.0",
-    "glob": "^8.0.3",
-    "mini-css-extract-plugin": "^2.7.2",
     "nano-jsx": "^0.0.36",
-    "postcss": "^8.4.21",
-    "postcss-loader": "^7.0.2",
-    "postcss-preset-env": "^7.8.3",
     "rimraf": "^3.0.2",
-    "sass": "^1.22.10",
-    "sass-loader": "^13.2.0",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.4",
     "webpack": "^5.74.0",

@@ -1,19 +1,22 @@
 const path = require('path');
 const glob = require('glob');
-const SRC_FOLDER = path.resolve(__dirname, 'src');
 
-const MODULES_LIST = ['tsx', 'ts'].reduce((list, ext) => {
-  return list
-    .concat(glob.sync(path.resolve(SRC_FOLDER, '**', `*.${ext}`)))
-    .filter(item => !item.endsWith('.d.ts'));
-}, []);
-
-module.exports = (_env, argv) => {
+module.exports = ({ src, dest } = {}) => (_env, argv) => {
+  const cwd = process.cwd();
   const { mode } = argv;
+
+  if (!src) src = path.resolve(cwd, 'components');
+  if (!dest) dest = path.resolve(cwd, 'lib');
+
+  const MODULES_LIST = ['tsx', 'ts'].reduce((list, ext) => {
+    return list
+      .concat(glob.sync(path.resolve(src, '**', `*.${ext}`)))
+      .filter(item => !item.endsWith('.d.ts'));
+  }, []);  
 
   return MODULES_LIST.map((m) => {
     const { name, dir } = path.parse(m);
-    const dest_dir = path.relative(SRC_FOLDER, dir);
+    const dest_dir = path.relative(src, dir);
     
     const M_CONFIG = {
       mode,
@@ -52,7 +55,7 @@ module.exports = (_env, argv) => {
       output: {
         filename: `[name].js`,
         chunkFilename: `${name}.[chunkhash].js`,
-        path: path.resolve(__dirname, 'lib', dest_dir),
+        path: path.resolve(__dirname, dest, dest_dir),
         globalObject: 'globalThis',
         library: {
           type: 'umd',
