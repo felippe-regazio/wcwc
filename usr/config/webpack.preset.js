@@ -20,6 +20,7 @@ module.exports = ({ src, dest } = {}) => (_env, argv) => {
     
     const M_CONFIG = {
       mode,
+      target: 'web',
       entry: {
         [name]: m,
       },
@@ -33,7 +34,7 @@ module.exports = ({ src, dest } = {}) => (_env, argv) => {
             test: /\.s[ac]ss$/i,
             use: [
               { 
-                loader: "css-loader", 
+                loader: 'css-loader', 
                 options: {
                   url: false,                  
                   importLoaders: 1,
@@ -41,7 +42,7 @@ module.exports = ({ src, dest } = {}) => (_env, argv) => {
                 },
               },
               { 
-                loader: "sass-loader"
+                loader: 'sass-loader'
               },
             ],
           },
@@ -53,7 +54,7 @@ module.exports = ({ src, dest } = {}) => (_env, argv) => {
         ]
       },
       output: {
-        filename: `[name].js`,
+        filename: '[name].js',
         chunkFilename: `${name}.[chunkhash].js`,
         path: path.resolve(__dirname, dest, dest_dir),
         globalObject: 'globalThis',
@@ -65,7 +66,8 @@ module.exports = ({ src, dest } = {}) => (_env, argv) => {
         splitChunks: {
           chunks: 'async'
         }
-      }
+      },
+      externals: 'wcwc'
     }
 
     if (mode === 'development') {

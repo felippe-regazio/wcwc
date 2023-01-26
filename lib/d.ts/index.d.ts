@@ -7,4 +7,5 @@ export declare class WC extends Component {
 }
 export { h } from 'nano-jsx/lib/core';
 export { Fragment } from 'nano-jsx/lib/fragment';
+export declare const wcwc: undefined;
 //# sourceMappingURL=index.d.ts.map
