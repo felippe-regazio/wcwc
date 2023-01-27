@@ -7,8 +7,8 @@ export class WC extends Component {
   static h: typeof h = h;
   static f: typeof Fragment = Fragment;
 
-  static styles?: '*.scss'[];
-  static attrs?: string[];
+  static $styles?: '*.scss'[];
+  static $config?: ComponentConfig;
 
   $(v: object): any {
     const state = (data = {}, cb?: Function) => {
@@ -46,12 +46,8 @@ export class WC extends Component {
     return state(v || {}, () => this.update());
   }
 
-  public static expose(tagname: string, shadow?: ShadowRootInit) {
-    defineAsCustomElements(
-      this,    // nano component
-      tagname, // custom element name
-      shadow   // shadow dom mode (optional)
-    );
+  public static expose(tagname: string, options?: ComponentConfig) {
+    defineAsCustomElements(this, tagname, options);
   }
 }
 

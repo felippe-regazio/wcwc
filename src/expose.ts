@@ -1,26 +1,25 @@
 import { loadStyles } from './load-styles';
 import { h, isSSR, render, _render } from 'nano-jsx/lib/core';
 
-const defineAsCustomElementsSSR = (
-  component: any, 
-  componentName: string, 
-  _options: any = {}
-) => {
+const defineAsCustomElementsSSR = (component: any, componentName: string, _options: any = {}) => {
   (!/^[a-zA-Z0-9]+-[a-zA-Z0-9]+$/.test(componentName)) ?
     console.log(`Error: WebComponent name "${componentName}" is invalid.`)
     : _nano.customElements.set(componentName, component);
-}
+};
 
 export const defineAsCustomElements: (
   component: any,
   componentName: string,
-  shadow?: ShadowRootInit
-) => void = function (component, componentName, shadow) {
+  config?: ComponentConfig
+) => void = function (component, componentName, config) {
   if (isSSR()) {
     defineAsCustomElementsSSR(component, componentName);
-    
     return;
   }
+
+  const _config: ComponentConfig = config || component.$config || {};
+  const _shadow = _config.shadow;
+  const _props = _config.props || {};
 
   customElements.define(componentName, class extends HTMLElement {
     nanoComponentRef: any;
@@ -32,7 +31,7 @@ export const defineAsCustomElements: (
 
       loadStyles(
         this.tagName.toLocaleLowerCase(), 
-        component.styles,
+        component.$styles,
         this.$root
       ).catch(void 0);
       
@@ -51,32 +50,48 @@ export const defineAsCustomElements: (
     }
 
     static get observedAttributes() {
-      return component.attrs;
+      return Object.keys(_props);
     }
 
     private root() {
-      if (shadow) {
-        this.attachShadow(shadow);
+      if (_shadow) {
+        this.attachShadow(_shadow);
         return this.shadowRoot as ShadowRoot;
       } else {
         return this;
       }
     }
 
-    private getInitialProps() {
-      return (component.attrs || []).reduce((acc: any, attr: string) => {
-        if (this.hasAttribute(attr)) {
-          acc[attr] = this.getAttribute(attr);
-        }
+    private getInitialProps(): unknown {
+      return Object.keys(_props)
+        .reduce((acc: any, attrName: string) => {
+          const attr = _props[attrName];
 
-        return acc;
-      }, {});
+          if (this.hasAttribute(attrName)) {
+            const attrValue = this.getAttribute(attrName) || attr.default || '';
+            acc[attrName] = attrValue;
+          } else {
+            acc[attrName] = attr.default;
+          }
+
+          if (attr.css) {
+            this.attrToCSSProp(attrName, attr.default as any);
+          }
+    
+          return acc;
+        }, {});
     }
 
-    private async setCSSProp(name: string, value: string|null): Promise<boolean> {
+    private async attrToCSSProp(name: string, value: string|null): Promise<boolean> {
       return new Promise((resolve, reject) => {
         try {
-          this.style.setProperty(`wc-props-${name}`, String(value) || '');
+          const attr = _props[name];
+
+          if (attr && attr.css) {
+            const propName = typeof attr.css === 'string' ? attr.css : name;
+            this.style.setProperty(`--attr-${propName}`, String(value || attr.default || ''));
+          }
+
           return resolve(true);
         } catch(error) {
           console.error(error);
@@ -86,8 +101,8 @@ export const defineAsCustomElements: (
     }
 
     private buildEl(contents: any) {
-      // because nano-jsx update need parentElement, we need 
-      // to wrap the element in a div when using shadow mode
+      // because nano-jsx update needs a "el.parentElement" we need 
+      // to wrap the children in a div when using shadow mode
       return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
     }
 
@@ -100,10 +115,10 @@ export const defineAsCustomElements: (
       }
     }
 
-    attributeChangedCallback(name: string, _: any, newValue: any) {   
+    attributeChangedCallback(name: string, _: any, newValue: any) {
       this.nanoComponentRef.props[name] = newValue;
       this.nanoComponentRef.update();
-      this.setCSSProp(name, newValue).catch(void 0);
+      this.attrToCSSProp(name, newValue).catch(void 0);
     }
-  })
+  });
 }
