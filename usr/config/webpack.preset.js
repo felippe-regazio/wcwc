@@ -5,7 +5,7 @@ module.exports = ({ src, dest } = {}) => (_env, argv) => {
   const cwd = process.cwd();
   const { mode } = argv;
 
-  if (!src) src = path.resolve(cwd, 'components');
+  if (!src) src = path.resolve(cwd, 'src');
   if (!dest) dest = path.resolve(cwd, 'lib');
 
   const MODULES_LIST = ['tsx', 'ts'].reduce((list, ext) => {

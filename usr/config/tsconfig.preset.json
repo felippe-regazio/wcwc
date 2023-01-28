@@ -5,7 +5,7 @@
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,
-    "module": "ES2015",
+    "module": "CommonJS",
     "target": "ES2015",
     "sourceMap": true,
     "moduleResolution": "node",

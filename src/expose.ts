@@ -17,7 +17,7 @@ export const defineAsCustomElements: (
     return;
   }
 
-  const _config: ComponentConfig = config || component.$config || {};
+  const _config: ComponentConfig = config || component.config || {};
   const _shadow = _config.shadow;
   const _props = _config.props || {};
 
@@ -31,7 +31,7 @@ export const defineAsCustomElements: (
 
       loadStyles(
         this.tagName.toLocaleLowerCase(), 
-        component.$styles,
+        component.styles,
         this.$root
       ).catch(void 0);
       

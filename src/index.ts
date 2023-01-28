@@ -7,10 +7,10 @@ export class WC extends Component {
   static h: typeof h = h;
   static f: typeof Fragment = Fragment;
 
-  static $styles?: '*.scss'[];
-  static $config?: ComponentConfig;
+  static styles?: '*.scss'[];
+  static config?: ComponentConfig;
 
-  $(v: object): any {
+  set(v: object): any {
     const state = (data = {}, cb?: Function) => {
       return new Proxy(data, {
         get: (obj: any, prop: any) => {
