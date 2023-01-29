@@ -1,4 +1,4 @@
-import { loadStyles } from './load-styles';
+import { addStyles } from './add-styles';
 import { h, isSSR, render, _render } from 'nano-jsx/lib/core';
 
 const defineAsCustomElementsSSR = (component: any, componentName: string, _options: any = {}) => {
@@ -17,6 +17,10 @@ export const defineAsCustomElements: (
     return;
   }
 
+  if (customElements.get(componentName)) {
+    return;
+  }
+
   const _config: ComponentConfig = config || component.config || {};
   const _shadow = _config.shadow;
   const _props = _config.props || {};
@@ -29,7 +33,7 @@ export const defineAsCustomElements: (
       super();
       this.$root = this.root();
 
-      loadStyles(
+      addStyles(
         this.tagName.toLocaleLowerCase(), 
         component.styles,
         this.$root

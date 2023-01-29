@@ -1,6 +1,6 @@
 export const REGISTERED_STYLE_URL: { [key: string]: string } = {};
 
-export async function loadStyles(symbolicName: string, styles: '*.scss'[], origin: HTMLElement|ShadowRoot): Promise<boolean> {
+export async function addStyles(symbolicName: string, styles: '*.scss'[], origin: HTMLElement|ShadowRoot): Promise<boolean> {
   return new Promise((resolve, reject) => {
     try {
       if (typeof window === 'undefined' || !styles || !styles.length) {
