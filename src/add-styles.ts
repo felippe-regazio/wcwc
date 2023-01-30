@@ -3,13 +3,13 @@ export const REGISTERED_STYLE_URL: { [key: string]: string } = {};
 export async function addStyles(symbolicName: string, styles: '*.scss'[], origin: HTMLElement|ShadowRoot): Promise<boolean> {
   return new Promise((resolve, reject) => {
     try {
-      if (typeof window === 'undefined' || !styles || !styles.length) {
+      if (!origin.isConnected || typeof window === 'undefined' || !styles || !styles.length) {
         return resolve(true);
       }
-  
+      
       const root = origin.getRootNode() as Document|ShadowRoot;
       const shadowed = root instanceof ShadowRoot;
-  
+
       if (!shadowed && root?.head?.querySelector(`link[data-symbolic-name=${symbolicName}]`)) {
         return resolve(true);
       }

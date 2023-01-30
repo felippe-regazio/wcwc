@@ -17,7 +17,7 @@ export const defineAsCustomElements: (
     return;
   }
 
-  if (customElements.get(componentName)) {
+  if (window.customElements.get(componentName)) {
     return;
   }
 
@@ -43,6 +43,7 @@ export const defineAsCustomElements: (
         _render({
           component,
           props: {
+            $wc: this.$root,
             ref: (r: any) => (this.nanoComponentRef = r),
             children: Array.from(this.childNodes).map(c => render(c)),
             ...(this.getInitialProps() || {})
@@ -93,7 +94,7 @@ export const defineAsCustomElements: (
 
           if (attr && attr.css) {
             const propName = typeof attr.css === 'string' ? attr.css : name;
-            this.style.setProperty(`--attr-${propName}`, String(value || attr.default || ''));
+            this.style.setProperty(`--wc-attr-${propName}`, String(value || attr.default || ''));
           }
 
           return resolve(true);

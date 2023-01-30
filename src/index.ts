@@ -1,4 +1,4 @@
-import { Component } from 'nano-jsx';
+import { Component } from './component';
 import { defineAsCustomElements } from './expose';
 import { h } from 'nano-jsx/lib/core';
 import { Fragment } from 'nano-jsx/lib/fragment';
