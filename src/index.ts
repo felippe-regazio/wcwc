@@ -10,7 +10,7 @@ export class WC extends Component {
   static styles?: '*.scss'[];
   static config?: ComponentConfig;
 
-  set(v: object): any {
+  reactive(v: object): any {
     const state = (data = {}, cb?: Function) => {
       return new Proxy(data, {
         get: (obj: any, prop: any) => {
@@ -21,8 +21,12 @@ export class WC extends Component {
           if ((Array.isArray(obj[prop]) || typeof obj[prop] === 'object') && !obj[prop]._isProxy) {
             obj[prop] = state(obj[prop], cb);
           }
-            
-          return obj[prop];
+          
+          if (typeof obj[prop] === 'function') {
+            return obj[prop]();
+          } else {
+            return obj[prop];
+          }
         },
   
         set: (obj: any, prop: any, value: any) => {

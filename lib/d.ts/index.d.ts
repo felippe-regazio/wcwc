@@ -6,7 +6,7 @@ export declare class WC extends Component {
     static f: typeof Fragment;
     static styles?: '*.scss'[];
     static config?: ComponentConfig;
-    set(v: object): any;
+    reactive(v: object): any;
     static expose(tagname: string, options?: ComponentConfig): void;
 }
 export declare const wcwc: {
