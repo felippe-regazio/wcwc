@@ -1,6 +1,6 @@
 export const REGISTERED_STYLE_URL: { [key: string]: string } = {};
 
-export async function addStyles(symbolicName: string, styles: '*.scss'[], origin: HTMLElement|ShadowRoot): Promise<boolean> {
+export async function addStyles(wcName: string, styles: '*.scss'[], origin: HTMLElement|ShadowRoot): Promise<boolean> {
   return new Promise((resolve, reject) => {
     try {
       if (!origin.isConnected || typeof window === 'undefined' || !styles || !styles.length) {
@@ -10,17 +10,17 @@ export async function addStyles(symbolicName: string, styles: '*.scss'[], origin
       const root = origin.getRootNode() as Document|ShadowRoot;
       const shadowed = root instanceof ShadowRoot;
 
-      if (!shadowed && root?.head?.querySelector(`link[data-symbolic-name=${symbolicName}]`)) {
+      if (!shadowed && root?.head?.querySelector(`link[data-wc-name=${wcName}]`)) {
         return resolve(true);
       }
   
-      let styleObjectURL = REGISTERED_STYLE_URL[symbolicName];
+      let styleObjectURL = REGISTERED_STYLE_URL[wcName];
   
       if (!styleObjectURL) {
         const styleText: string = (styles.map((s: '*.scss') => s.toString()).join('')).trim();
         const blob = new Blob([ styleText ], {type: 'text/css'});
         styleObjectURL = window.URL.createObjectURL(blob);
-        REGISTERED_STYLE_URL[symbolicName] = styleObjectURL;
+        REGISTERED_STYLE_URL[wcName] = styleObjectURL;
       }
   
       const link = Object.assign(document.createElement('link'), {
@@ -28,7 +28,7 @@ export async function addStyles(symbolicName: string, styles: '*.scss'[], origin
         href: styleObjectURL
       });
   
-      link.dataset.symbolicName = symbolicName;
+      link.dataset.wcName = wcName;
       const target = shadowed ? root : (root as any)?.head;
       target.append(link);
       

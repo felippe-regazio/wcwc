@@ -28,11 +28,27 @@ export const defineAsCustomElements: (
   customElements.define(componentName, class extends HTMLElement {
     nanoComponentRef: any;
     $root: ShadowRoot|HTMLElement;    
+    private initialized: boolean = false;
 
     constructor() {
       super();
       this.$root = this.root();
+      component.$el = this.$root;
+    }
 
+    connectedCallback() {
+      /*
+       * The constructor for a custom element is not supposed to read or write its DOM. 
+       * It shouldn't create child elements or modify attributes. That work needs to be 
+       * done later, usually in a connectedCallback() method (although note that connectedCallback() 
+       * can be called multiple times if the element is removed and re-added to the DOM, 
+       * so you may need to check for this, or undo changes in a disconnectedCallback()).
+       * SPEC: https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
+       */
+      !this.initialized && this.init();
+    }
+
+    init() {
       addStyles(
         this.tagName.toLocaleLowerCase(), 
         component.styles,
@@ -43,7 +59,7 @@ export const defineAsCustomElements: (
         _render({
           component,
           props: {
-            $wc: this.$root,
+            $el: this.$root,
             ref: (r: any) => (this.nanoComponentRef = r),
             children: Array.from(this.childNodes).map(c => render(c)),
             ...(this.getInitialProps() || {})
@@ -52,6 +68,7 @@ export const defineAsCustomElements: (
       );
       
       this.appendEl(el);
+      this.initialized = true;    
     }
 
     static get observedAttributes() {
@@ -106,8 +123,13 @@ export const defineAsCustomElements: (
     }
 
     private buildEl(contents: any) {
-      // because nano-jsx update needs a "el.parentElement" we need 
-      // to wrap the children in a div when using shadow mode
+      /*
+       * because nano-jsx update needs a "el.parentElement" we need 
+       * to wrap the children in a div when using shadow mode. when
+       * not in shadow mode the parent is the element itself, when
+       * in shadow mode the parent cant be the shadow, so we wrap the
+       * component.
+       */
       return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
     }
 
@@ -121,9 +143,11 @@ export const defineAsCustomElements: (
     }
 
     attributeChangedCallback(name: string, _: any, newValue: any) {
-      this.nanoComponentRef.props[name] = newValue;
-      this.nanoComponentRef.update();
-      this.attrToCSSProp(name, newValue).catch(void 0);
+      if (this.nanoComponentRef) {
+        this.nanoComponentRef.props[name] = newValue;
+        this.nanoComponentRef.update();
+        this.attrToCSSProp(name, newValue).catch(void 0);
+      }
     }
   });
 }

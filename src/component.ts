@@ -5,12 +5,14 @@ import { _state } from 'nano-jsx/lib/state.js'
 export class Component<P extends Object = any, S = any> {
   public props: P
   public id: string
+  public $el: HTMLElement;
   private _elements: HTMLElement[] = []
   private _skipUnmount = false
   private _hasUnmounted = false
 
   constructor(props: P) {
     this.props = props || {}
+    this.$el = (props as any).$el;
     this.id = this._getHash()
   }
 
@@ -114,7 +116,7 @@ export class Component<P extends Object = any, S = any> {
     // console.log('new: ', this.elements)
 
     // get valid parent node
-    const parent = ((this.props as any).$wc || oldElements[0].parentElement) as HTMLElement
+    const parent = ((this.props as any).$el || oldElements[0].parentElement) as HTMLElement
 
     // make sure we have a parent
     if (!parent) console.warn('No WC Component found!')
@@ -140,7 +142,7 @@ export class Component<P extends Object = any, S = any> {
     // @ts-ignore
     tick(() => {
       this._skipUnmount = false
-      if (!(this.props as any).$wc || !(this.props as any).$wc.isConnected) {
+      if (!(this.props as any).$el || !(this.props as any).$el.isConnected) {
         this._didUnmount()
       }
       else this._didUpdate()
