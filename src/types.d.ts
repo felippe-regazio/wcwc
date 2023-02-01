@@ -11,3 +11,9 @@ type ComponentConfigPropValue = {
   default: unknown, 
   css?: boolean|string
 };
+
+type addStylesOptions = {
+  tagname: string, 
+  styles: '*.scss'[], 
+  origin: HTMLElement|ShadowRoot
+}

@@ -22,7 +22,11 @@ export function defineAsCustomElements(Component: any, componentName: string, de
     shadow: undefined,
     ...(definedConfig || {}),
   });
-  
+
+  // -----------------------------------------------
+  // Wraps Nano Component on a Native Web Component
+  // -----------------------------------------------
+
   customElements.define(componentName, class ComponentAdapter extends HTMLElement {
     $nc: any;
     $root: ShadowRoot|HTMLElement;    
@@ -47,25 +51,14 @@ export function defineAsCustomElements(Component: any, componentName: string, de
     }
 
     init() {
-      addStyles(
-        this.tagName.toLocaleLowerCase(), 
-        Component.styles,
-        this.$root
-      ).catch(void 0);
+      addStyles({
+        origin: this.$root,
+        styles: Component.styles,
+        tagname: this.tagName.toLocaleLowerCase(), 
+      }).catch(void 0);
       
-      const el = this.buildEl(
-        _render({
-          component: Component,
-          props: {
-            $el: this.$root,
-            ref: (r: any) => (this.$nc = r),
-            children: Array.from(this.childNodes).map(c => render(c)),
-            ...(this.getInitialProps() || {})
-          }
-        })
-      );
-      
-      this.appendEl(el);
+      const component = this.buildComponent();
+      this.appendComponent(component);
       this.initialized = true;    
     }
 
@@ -77,12 +70,43 @@ export function defineAsCustomElements(Component: any, componentName: string, de
       if (config.shadow) {
         this.attachShadow(config.shadow);
         return this.shadowRoot as ShadowRoot;
-      } else {
-        return this;
       }
+       
+      return this;
     }
 
-    private getInitialProps(): unknown {
+    private buildComponent() {
+      /*
+       * because nano-jsx update needs a "el.parentElement" we need 
+       * to wrap the children in a div when using shadow mode. when
+       * not in shadow mode the parent is the element itself, when
+       * in shadow mode the parent cant be the shadow, so we wrap the
+       * component.
+       */
+      const contents = _render({
+        component: Component,
+
+        props: {
+          $el: this.$root,
+          ref: (r: any) => (this.$nc = r),
+          children: Array.from(this.childNodes).map(c => render(c)),
+          ...(this.attrsToProps() || {})
+        }
+      })
+
+      return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
+    }
+
+    private appendComponent(el: any) {
+      if (!!this.shadowRoot) {
+        el.dataset.wcRoot = true;
+        this.$root.append(el);
+      } else {
+        this.$root.append(...el.childNodes);
+      }
+    }    
+
+    private attrsToProps(): unknown {
       return Object.keys(config.props)
         .reduce((acc: any, attrName: string) => {
           const attr = config.props[attrName];
@@ -118,26 +142,6 @@ export function defineAsCustomElements(Component: any, componentName: string, de
           return reject(false);
         }
       })
-    }
-
-    private buildEl(contents: any) {
-      /*
-       * because nano-jsx update needs a "el.parentElement" we need 
-       * to wrap the children in a div when using shadow mode. when
-       * not in shadow mode the parent is the element itself, when
-       * in shadow mode the parent cant be the shadow, so we wrap the
-       * component.
-       */
-      return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
-    }
-
-    private appendEl(el: any) {
-      if (!!this.shadowRoot) {
-        el.dataset.wcRoot = true;
-        this.$root.append(el);
-      } else {
-        this.$root.append(...el.childNodes);
-      }
     }
 
     attributeChangedCallback(name: string, _: any, newValue: any) {
