@@ -1,6 +1,6 @@
 type ComponentConfig = {
   shadow?: ShadowRootInit,
-  props?: ComponentConfigProps
+  props: ComponentConfigProps
 }
 
 type ComponentConfigProps = { 

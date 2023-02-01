@@ -5,10 +5,8 @@ import { Fragment } from 'nano-jsx/lib/fragment';
 
 export class WC extends Component {
   static h: typeof h = h;
-  static f: typeof Fragment = Fragment;
-  
+  static f: typeof Fragment = Fragment;  
   static styles?: '*.scss'[];
-  static config?: ComponentConfig;
 
   reactive(v: object): any {
     const state = (data = {}, cb?: Function) => {
