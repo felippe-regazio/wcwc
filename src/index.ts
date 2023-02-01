@@ -6,36 +6,32 @@ import { h } from 'nano-jsx/lib/core';
 import { Fragment } from 'nano-jsx/lib/fragment';
 
 export class Component<P extends Object = any, S = any> {
-  public props: P
-  public id: string
+  public props: P;
+  public id: string;
   public $el: HTMLElement;
-  private _elements: HTMLElement[] = []
-  private _skipUnmount = false
-  private _hasUnmounted = false
+  public isClass = true;
+  public static isClass = true;
+
+  private _elements: HTMLElement[] = [];
+  private _skipUnmount = false;
+  private _hasUnmounted = false;
 
   constructor(props: P) {
-    this.props = props || {}
+    this.props = props || {};
     this.$el = (props as any).$el;
-    this.id = this._getHash()
-  }
-
-  public static get isClass() {
-    return true
-  }
-
-  public get isClass() {
-    return true
+    this.id = this._getHash();
   }
 
   setState(state: S, shouldUpdate: boolean = false) {
-    const isObject = typeof state === 'object' && state !== null
-
+    const isObject = typeof state === 'object' && state !== null;
     // if state is an object, we merge the objects
-    if (isObject && this.state !== undefined) this.state = { ...this.state, ...state }
+    if (isObject && this.state !== undefined) this.state = { ...this.state, ...state };
     // else, we just overwrite it
-    else this.state = state
+    else this.state = state;
 
-    if (shouldUpdate) this.update()
+    if (shouldUpdate) {
+      this.update();
+    }
   }
 
   set state(state: S) {
@@ -47,7 +43,9 @@ export class Component<P extends Object = any, S = any> {
   }
 
   set initState(state: S) {
-    if (this.state === undefined) this.state = state
+    if (this.state === undefined) {
+      this.state = state
+    }
   }
 
   /** Returns all currently rendered node elements */
@@ -56,41 +54,49 @@ export class Component<P extends Object = any, S = any> {
   }
 
   public set elements(elements: HTMLElement[]) {
-    if (!Array.isArray(elements)) elements = [elements]
+    if (!Array.isArray(elements)) {
+      elements = [elements];
+    }
 
     elements.forEach(element => {
-      this._elements.push(element)
-    })
+      this._elements.push(element);
+    });
   }
 
   private _addNodeRemoveListener() {
     // check if didUnmount is unused
-    if (/^[^{]+{\s+}$/gm.test(this.didUnmount.toString())) return
-
+    if (/^[^{]+{\s+}$/gm.test(this.didUnmount.toString())) {
+      return
+    }
     // listen if the root elements gets removed
     onNodeRemove(this.elements[0], () => {
-      if (!this._skipUnmount) this._didUnmount()
-    })
+      if (!this._skipUnmount) {
+        this._didUnmount();
+      }
+    });
   }
 
   // @ts-ignore
   private _didMount(): any {
-    this._addNodeRemoveListener()
-    this.didMount()
+    this._addNodeRemoveListener();
+    this.didMount();
   }
 
   private _willUpdate(): any {
-    this.willUpdate()
+    this.willUpdate();
   }
 
   private _didUpdate(): any {
-    this.didUpdate()
+    this.didUpdate();
   }
 
   private _didUnmount(): any {
-    if (this._hasUnmounted) return
-    this.didUnmount()
-    this._hasUnmounted = true
+    if (this._hasUnmounted) {
+      return
+    }
+    
+    this.didUnmount();
+    this._hasUnmounted = true;
   }
 
   public willMount(): any {}
@@ -98,55 +104,60 @@ export class Component<P extends Object = any, S = any> {
   public willUpdate(): any {}
   public didUpdate(): any {}
   public didUnmount(): any {}
-
   public render(_update?: any): HTMLElement | void {}
 
   /** Will forceRender the component */
   public update(update?: any) {
-    this._skipUnmount = true
-    this._willUpdate()
+    this._skipUnmount = true;
+    this._willUpdate();
     // get all current rendered node elements
-    const oldElements = [...this.elements]
+    const oldElements = [...this.elements];
 
-    this._elements = []
+    this._elements = [];
 
-    let el = this.render(update)
-    el = _render(el)
-    this.elements = el as any
+    let el = this.render(update);
+    el = _render(el);
+    this.elements = el as any;
 
-    const parent = ((this.props as any).$el || oldElements[0].parentElement) as HTMLElement
+    const parent = ((this.props as any).$el || oldElements[0].parentElement) as HTMLElement;
 
-    if (!parent) console.warn('No WC Component found!')
+    if (!parent) {
+      console.warn('NanoJSX Component needs a parent element to Update!');
+    }
 
     // add all new node elements
     this.elements.forEach((child: HTMLElement) => {
       if (parent) parent.insertBefore(child, oldElements[0])
-    })
+    });
 
     // remove all elements
     oldElements.forEach((child: HTMLElement) => {
       // wee keep the element if it is the same, for example if passed as a child
       if (!this.elements.includes(child)) {
-        child.remove()
+        child.remove();
         // @ts-ignore
-        child = null
+        child = null;
       }
-    })
+    });
 
     // listen for node removal
-    this._addNodeRemoveListener()
+    this._addNodeRemoveListener();
 
     // @ts-ignore
     tick(() => {
-      this._skipUnmount = false
+      this._skipUnmount = false;
+      
       if (!(this.props as any).$el || !(this.props as any).$el.isConnected) {
-        this._didUnmount()
+        this._didUnmount();
+      } else {
+        this._didUpdate();
       }
-      else this._didUpdate()
     })
   }
 
   private _getHash(): any {}
+  // @ts-ignore
+  public onAttrChange(name: string, oldv: any, newv: any) {}
 }
 
 export class WC extends Component {
@@ -195,7 +206,7 @@ export class WC extends Component {
   }
 
   public static expose(tagname: string, options?: ComponentConfig) {
-    defineAsCustomElements(this, tagname, options);
+    defineAsCustomElements(this as typeof WC&Component, tagname, options);
   }
 }
 

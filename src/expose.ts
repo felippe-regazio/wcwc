@@ -35,7 +35,6 @@ export function defineAsCustomElements(Component: any, componentName: string, de
     constructor() {
       super();
       this.$root = this.root();
-      Component.$el = this.$root;
     }
 
     connectedCallback() {
@@ -53,7 +52,7 @@ export function defineAsCustomElements(Component: any, componentName: string, de
     init() {
       addStyles({
         origin: this.$root,
-        styles: Component.styles,
+        styles: Component.styles || [],
         tagname: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
       
@@ -144,11 +143,12 @@ export function defineAsCustomElements(Component: any, componentName: string, de
       })
     }
 
-    attributeChangedCallback(name: string, _: any, newValue: any) {
-      if (this.$nc) {
-        this.$nc.props[name] = newValue;
+    attributeChangedCallback(name: string, oldv: any, newv: any) {
+      if (this.$nc && oldv !== newv) {
+        this.$nc.props[name] = newv;
         this.$nc.update();
-        this.attrToCSSProp(name, newValue).catch(void 0);
+        this.attrToCSSProp(name, newv).catch(void 0);
+        this.$nc.onAttrChange(name, oldv, newv);
       }
     }
   });
