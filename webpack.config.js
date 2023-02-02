@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (_env, argv) => {
   const { mode } = argv;
@@ -30,6 +31,10 @@ module.exports = (_env, argv) => {
         type: 'umd'
       }
     },
+    optimization: {
+      minimize: true,
+      minimizer: [ new TerserPlugin() ]    
+    }
   }
 
   if (mode === 'development') {

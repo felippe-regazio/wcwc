@@ -19,6 +19,7 @@
   "devDependencies": {
     "nano-jsx": "^0.0.36",
     "rimraf": "^3.0.2",
+    "terser-webpack-plugin": "^5.3.6",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.4",
     "webpack": "^5.74.0",
