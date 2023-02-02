@@ -2,8 +2,8 @@ import { onNodeRemove } from 'nano-jsx/lib/helpers.js'
 import { tick, _render } from 'nano-jsx/lib/core.js'
 import { _state } from 'nano-jsx/lib/state.js'
 import { defineAsCustomElements } from './expose';
-import { h } from 'nano-jsx/lib/core';
 import { Fragment } from 'nano-jsx/lib/fragment';
+import { h } from 'nano-jsx/lib/core';
 
 export class Component<P extends Object = any, S = any> {
   public props: P;
@@ -23,11 +23,13 @@ export class Component<P extends Object = any, S = any> {
   }
 
   setState(state: S, shouldUpdate: boolean = false) {
-    const isObject = typeof state === 'object' && state !== null;
-    // if state is an object, we merge the objects
-    if (isObject && this.state !== undefined) this.state = { ...this.state, ...state };
-    // else, we just overwrite it
-    else this.state = state;
+    const merge = state && typeof state === 'object';
+
+    if (merge && this.state !== undefined) {
+      this.state = { ...this.state, ...state };
+    } else {
+      this.state = state;
+    }
 
     if (shouldUpdate) {
       this.update();
@@ -55,12 +57,10 @@ export class Component<P extends Object = any, S = any> {
 
   public set elements(elements: HTMLElement[]) {
     if (!Array.isArray(elements)) {
-      elements = [elements];
+      elements = [ elements ];
     }
 
-    elements.forEach(element => {
-      this._elements.push(element);
-    });
+    this._elements.push(...elements);
   }
 
   private _addNodeRemoveListener() {
@@ -68,11 +68,10 @@ export class Component<P extends Object = any, S = any> {
     if (/^[^{]+{\s+}$/gm.test(this.didUnmount.toString())) {
       return
     }
+
     // listen if the root elements gets removed
-    onNodeRemove(this.elements[0], () => {
-      if (!this._skipUnmount) {
-        this._didUnmount();
-      }
+    onNodeRemove((this.props as any).$el || this.elements[0], () => {
+      !this._skipUnmount && this._didUnmount();
     });
   }
 
@@ -110,20 +109,15 @@ export class Component<P extends Object = any, S = any> {
   public update(update?: any) {
     this._skipUnmount = true;
     this._willUpdate();
-    // get all current rendered node elements
-    const oldElements = [...this.elements];
-
+    
+    const oldElements = [ ...this.elements ];
     this._elements = [];
-
-    let el = this.render(update);
-    el = _render(el);
-    this.elements = el as any;
+    
+    const preRendered = this.render(update);
+    this.elements = _render(preRendered) as any;
 
     const parent = ((this.props as any).$el || oldElements[0].parentElement) as HTMLElement;
-
-    if (!parent) {
-      console.warn('NanoJSX Component needs a parent element to Update!');
-    }
+    !parent && console.warn('NanoJSX Component needs a parent element to Update!');
 
     // add all new node elements
     this.elements.forEach((child: HTMLElement) => {
@@ -147,11 +141,9 @@ export class Component<P extends Object = any, S = any> {
     tick(() => {
       this._skipUnmount = false;
       
-      if (!(this.props as any).$el || !(this.props as any).$el.isConnected) {
-        this._didUnmount();
-      } else {
-        this._didUpdate();
-      }
+      !((this.props as any).$el || this.elements[0]).isConnected 
+        ? this._didUnmount() 
+        : this._didUpdate();
     })
   }
 
@@ -206,7 +198,7 @@ export class WC extends Component {
   }
 
   public static expose(tagname: string, options?: ComponentConfig) {
-    defineAsCustomElements(this as typeof WC&Component, tagname, options);
+    defineAsCustomElements(this, tagname, options);
   }
 }
 

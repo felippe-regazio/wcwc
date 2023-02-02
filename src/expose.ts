@@ -23,58 +23,29 @@ export function defineAsCustomElements(Component: any, componentName: string, de
     ...(definedConfig || {}),
   });
 
-  // -----------------------------------------------
-  // Wraps Nano Component on a Native Web Component
-  // -----------------------------------------------
+  // ---------------------------------------------------
+  // Wraps Nano Component (NC) on a Native Web Component
+  // ---------------------------------------------------
 
-  customElements.define(componentName, class ComponentAdapter extends HTMLElement {
+  customElements.define(componentName, class extends HTMLElement {
     $nc: any;
+    $rendered: any;
     $root: ShadowRoot|HTMLElement;    
     private initialized: boolean = false;
 
     constructor() {
       super();
       this.$root = this.root();
-    }
+      this.$rendered = this.renderNC();
 
-    connectedCallback() {
-      /*
-       * The constructor for a custom element is not supposed to read or write its DOM. 
-       * It shouldn't create child elements or modify attributes. That work needs to be 
-       * done later, usually in a connectedCallback() method (although note that connectedCallback() 
-       * can be called multiple times if the element is removed and re-added to the DOM, 
-       * so you may need to check for this, or undo changes in a disconnectedCallback()).
-       * SPEC: https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
-       */
-      !this.initialized && this.init();
-    }
-
-    init() {
       addStyles({
         origin: this.$root,
         styles: Component.styles || [],
         tagname: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
-      
-      const component = this.buildComponent();
-      this.appendComponent(component);
-      this.initialized = true;    
     }
 
-    static get observedAttributes() {
-      return Object.keys(config.props);
-    }
-
-    private root() {
-      if (config.shadow) {
-        this.attachShadow(config.shadow);
-        return this.shadowRoot as ShadowRoot;
-      }
-       
-      return this;
-    }
-
-    private buildComponent() {
+    private renderNC() {
       /*
        * because nano-jsx update needs a "el.parentElement" we need 
        * to wrap the children in a div when using shadow mode. when
@@ -94,6 +65,36 @@ export function defineAsCustomElements(Component: any, componentName: string, de
       })
 
       return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
+    }  
+    
+    connectedCallback() {
+      /*
+       * The constructor for a custom element is not supposed to read or write its DOM. 
+       * It shouldn't create child elements or modify attributes. That work needs to be 
+       * done later, usually in a connectedCallback() method (although note that connectedCallback() 
+       * can be called multiple times if the element is removed and re-added to the DOM, 
+       * so you may need to check for this, or undo changes in a disconnectedCallback()).
+       * SPEC: https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
+       */
+      !this.initialized && this.init();
+    }    
+
+    init() {
+      this.appendComponent(this.$rendered);
+      this.initialized = true;
+    }
+
+    static get observedAttributes() {
+      return Object.keys(config.props);
+    }
+
+    private root() {
+      if (config.shadow) {
+        this.attachShadow(config.shadow);
+        return this.shadowRoot as ShadowRoot;
+      }
+       
+      return this;
     }
 
     private appendComponent(el: any) {
@@ -148,7 +149,7 @@ export function defineAsCustomElements(Component: any, componentName: string, de
         this.$nc.props[name] = newv;
         this.$nc.update();
         this.attrToCSSProp(name, newv).catch(void 0);
-        this.$nc.onAttrChange(name, oldv, newv);
+        this.$nc.onAttrChange(name, oldv, newv || config.props[name]?.default);
       }
     }
   });
