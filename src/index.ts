@@ -52,4 +52,4 @@ export class WC extends Component {
   }
 }
 
-export const wcwc = { WC }
+export const wcwc = { WC };
