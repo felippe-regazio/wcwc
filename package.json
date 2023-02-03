@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "Write Cool Web Components",
   "main": "lib/index.js",
-  "types": "lib/d.ts/",
+  "types": "lib/d.ts",
   "files": [
-    "lib/*",
-    "usr/*"
+    "lib/*"
   ],
   "scripts": {
     "clear": "rimraf --sync ./lib",
@@ -17,7 +16,6 @@
   "author": "Felippe Regazio",
   "license": "MIT",
   "devDependencies": {
-    "nano-jsx": "^0.0.36",
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.3.6",
     "ts-loader": "^9.4.1",

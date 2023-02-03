@@ -1,5 +1,6 @@
 import { addStyles } from './add-styles';
-import { h, isSSR, render, _render } from 'nano-jsx/lib/core';
+import { _render, render, h } from './engine';
+import { isSSR } from './engine';
 
 function defineAsCustomElementsSSR(component: any, componentName: string, _options: any = {}) {
   (!/^[a-zA-Z0-9]+-[a-zA-Z0-9]+$/.test(componentName)) ?

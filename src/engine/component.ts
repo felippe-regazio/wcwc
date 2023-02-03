@@ -1,5 +1,5 @@
 import { onNodeRemove } from 'nano-jsx/lib/helpers.js'
-import { tick, _render } from './engine'
+import { tick, _render } from '.'
 
 export class Component<P extends Object = any> {
   public props: P;
@@ -75,43 +75,50 @@ export class Component<P extends Object = any> {
 
   /** Will forceRender the component */
   public update(update?: any) {
-    this._skipUnmount = true;
-    this._willUpdate();
-    
-    const oldElements = [ ...this.elements ];
-    this._elements = [];
-    
-    const preRendered = this.render(update);
-    this.elements = _render(preRendered) as any;
+    this._skipUnmount = true
+    this._willUpdate()
+    // get all current rendered node elements
+    const oldElements = [...this.elements]
 
-    const parent = ((this.props as any).$el || oldElements[0].parentElement) as HTMLElement;
-    !parent && console.warn('NanoJSX Component needs a parent element to Update!');
+    // clear
+    this._elements = []
+
+    let el = this.render(update)
+    el = _render(el)
+    this.elements = el as any
+
+    // console.log('old: ', oldElements)
+    // console.log('new: ', this.elements)
+
+    // get valid parent node
+    const parent = oldElements[0].parentElement as HTMLElement
+
+    // make sure we have a parent
+    if (!parent) console.warn('Component needs a parent element to get updated!')
 
     // add all new node elements
     this.elements.forEach((child: HTMLElement) => {
       if (parent) parent.insertBefore(child, oldElements[0])
-    });
+    })
 
     // remove all elements
     oldElements.forEach((child: HTMLElement) => {
       // wee keep the element if it is the same, for example if passed as a child
       if (!this.elements.includes(child)) {
-        child.remove();
+        child.remove()
         // @ts-ignore
-        child = null;
+        child = null
       }
-    });
+    })
 
     // listen for node removal
-    this._addNodeRemoveListener();
+    this._addNodeRemoveListener()
 
     // @ts-ignore
     tick(() => {
-      this._skipUnmount = false;
-      
-      !((this.props as any).$el || this.elements[0]).isConnected 
-        ? this._didUnmount() 
-        : this._didUpdate();
+      this._skipUnmount = false
+      if (!this.elements[0].isConnected) this._didUnmount()
+      else this._didUpdate()
     })
   }
 
