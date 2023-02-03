@@ -59,7 +59,7 @@ export function defineAsCustomElements(Component: any, componentName: string, de
         props: {
           $el: this.$root,
           ref: (r: any) => (this.$nc = r),
-          children: Array.from(this.childNodes).map(c => render(c)),
+          children: render(Array.from(this.childNodes)),
           ...(this.attrsToProps() || {})
         }
       })
