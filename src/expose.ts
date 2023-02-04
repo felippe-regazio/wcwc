@@ -1,19 +1,7 @@
 import { addStyles } from './add-styles';
 import { _render, render, h } from './engine';
-import { isSSR } from './engine';
-
-function defineAsCustomElementsSSR(component: any, componentName: string, _options: any = {}) {
-  (!/^[a-zA-Z0-9]+-[a-zA-Z0-9]+$/.test(componentName)) ?
-    console.log(`Error: WebComponent name "${componentName}" is invalid.`)
-    : _nano.customElements.set(componentName, component);
-};
 
 export function defineAsCustomElements(Component: any, componentName: string, definedConfig?: ComponentConfig) {
-  if (isSSR()) {
-    defineAsCustomElementsSSR(Component, componentName);
-    return;
-  }
-
   if (window.customElements.get(componentName)) {
     return;
   }
