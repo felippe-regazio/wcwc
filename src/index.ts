@@ -5,7 +5,7 @@ import { h, Fragment } from './engine';
 export class WC extends Component {
   static h: typeof h = h;
   static f: typeof Fragment = Fragment;  
-  static styles?: '*.scss'[];
+  static styles?: StaticStyle[];
 
   reactive(v: object): any {
     const state = (data = {}, cb?: Function) => {

@@ -2,7 +2,11 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
   return new Promise((resolve, reject) => {
     try {
       const { origin, styles, tagname } = options;
-      const styleContent = ((styles || []).map((s: '*.scss') => s.toString()).join('')).trim();
+      
+      const styleContent = (styles || [])
+        .map((s: StaticStyle) => s.toString())
+        .join(' ')
+        .trim();
 
       if (!origin.isConnected || typeof window === 'undefined' || !styleContent) {
         return resolve(true);
