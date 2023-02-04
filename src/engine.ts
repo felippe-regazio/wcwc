@@ -1,76 +1,16 @@
-import './types'
-import { documentSSR } from './regexDom'
-
-export function detectSSR(): boolean {
-  // @ts-ignore
-  const isDeno = typeof Deno !== 'undefined';
-  const hasWindow = typeof window !== 'undefined';
-  return isDeno || !hasWindow;
-}
-
-export function createNano() {
-  const location = { pathname: '/' }
-  const document = detectSSR() ? documentSSR() : window.document;
-  
-  const nano: any = { 
-    isSSR, 
-    location, 
-    document, 
-    customElements: new Map()
-  };
-
-  nano.ssrTricks = {
-    isWebComponent: (tagNameOrComponent: any) => {
-      return (
-        typeof tagNameOrComponent === 'string' &&
-        tagNameOrComponent.includes('-') &&
-        nano.customElements.has(tagNameOrComponent)
-      )
-    },
-    renderWebComponent: (tagNameOrComponent: any, props: any, children: any, _render: any) => {
-      const customElement = nano.customElements.get(tagNameOrComponent)
-      const component = _render({ component: customElement, props: { ...props, children: children } })
-      // get the html tag and the innerText from string
-      // match[1]: HTMLTag
-      // match[2]: innerText
-      const match = component.toString().match(/^<(?<tag>[a-z]+)>(.*)<\/\k<tag>>$/)
-      if (match) {
-        const element = document.createElement(match[1])
-        element.innerText = match[2]
-  
-        // eslint-disable-next-line no-inner-declarations
-        function replacer(match: string, p1: string, _offset: number, _string: string): string {
-          return match.replace(p1, '')
-        }
-        // remove events like onClick from DOM
-        element.innerText = element.innerText.replace(/<\w+[^>]*(\s(on\w*)="[^"]*")/gm, replacer)
-  
-        return element
-      } else {
-        return null
-      }
+declare global {
+  export namespace JSX {
+    interface IntrinsicElements {
+      [elemName: string]: any
+    }
+    interface ElementClass {
+      render: any
+    }
+    interface ElementChildrenAttribute {
+      children: any
     }
   }
-
-  return nano;
 }
-
-export const _nano = createNano();
-
-export const initSSR = (pathname: string = '/') => {
-  _nano.location = { pathname }
-  globalThis.document = _nano.document = isSSR() ? documentSSR() : window.document
-}
-
-export const renderSSR = (component: any, options: { pathname?: string; clearState?: boolean } = {}) => {
-  const { pathname } = options
-
-  initSSR(pathname);
-
-  return render(component, null, true).join('') as string
-}
-
-export const isSSR = () => typeof _nano !== 'undefined' && _nano.isSSR === true
 
 export const Fragment = (props: any) => {
   return props.children
@@ -124,8 +64,7 @@ export const appendChildren = (element: HTMLElement | SVGElement, children: HTML
         if (Array.isArray(c)) appendChildren(element, c, escape)
         // apply the component to parent element
         else {
-          if (isSSR() && !escape) element.appendChild(c.nodeType == null ? (c.toString() as unknown as Node) : c)
-          else element.appendChild(c.nodeType == null ? document.createTextNode(c.toString()) : c)
+          element.appendChild(c.nodeType == null ? document.createTextNode(c.toString()) : c)
         }
       }
     }
@@ -138,10 +77,8 @@ export const appendChildren = (element: HTMLElement | SVGElement, children: HTML
 const SVG = (props: any) => {
   const child = props.children[0] as SVGElement
   const attrs = child.attributes
-
-  if (isSSR()) return child
-
   const svg = hNS('svg') as SVGElement
+
   for (let i = attrs.length - 1; i >= 0; i--) {
     svg.setAttribute(attrs[i].name, attrs[i].value)
   }
@@ -178,7 +115,6 @@ export const render = (component: any, parent: HTMLElement | null = null, remove
   }
   // returning one child or an array of children
   else {
-    if (isSSR() && !Array.isArray(el)) return [el]
     return el
   }
 }
@@ -247,7 +183,7 @@ const renderClassComponent = (classComp: any): any => {
   component.prototype._getHash = () => hash
 
   const Component = new component(props)
-  if (!isSSR()) Component.willMount()
+  Component.willMount()
 
   let el = Component.render()
   el = _render(el)
@@ -256,10 +192,9 @@ const renderClassComponent = (classComp: any): any => {
   // pass the component instance as ref
   if (props && props.ref) props.ref(Component)
 
-  if (!isSSR())
-    tick(() => {
-      Component._didMount()
-    })
+  tick(() => {
+    Component._didMount()
+  })
 
   return el
 }
@@ -279,23 +214,9 @@ export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) 
     }
   }
 
-  // render WebComponent in SSR
-  if (isSSR() && _nano.ssrTricks.isWebComponent(tagNameOrComponent)) {
-    const element = _nano.ssrTricks.renderWebComponent(tagNameOrComponent, props, children, _render)
-    if (element === null) return `ERROR: "<${tagNameOrComponent} />"`
-    else return element
-  }
-
   // if tagNameOrComponent is a component
   if (typeof tagNameOrComponent !== 'string')
     return { component: tagNameOrComponent, props: { ...props, children: children } }
-
-  // custom message if document is not defined in SSR
-  try {
-    if (isSSR() && typeof tagNameOrComponent === 'string' && !document) throw new Error('document is not defined')
-  } catch (err: any) {
-    console.log('ERROR:', err.message, '\n > Please read: https://github.com/nanojsx/nano/issues/106')
-  }
 
   let ref
 
@@ -334,23 +255,15 @@ export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) 
       element.addEventListener(p.toLowerCase().substring(2), (e: any) => props[p](e))
     // dangerouslySetInnerHTML
     else if (p === 'dangerouslySetInnerHTML' && props[p].__html) {
-      if (!isSSR()) {
-        const fragment = document.createElement('fragment')
-        fragment.innerHTML = props[p].__html
-        element.appendChild(fragment)
-      } else {
-        element.innerHTML = props[p].__html
-      }
+      const fragment = document.createElement('fragment')
+      fragment.innerHTML = props[p].__html
+      element.appendChild(fragment)
     }
     // modern dangerouslySetInnerHTML
     else if (p === 'innerHTML' && props[p].__dangerousHtml) {
-      if (!isSSR()) {
-        const fragment = document.createElement('fragment')
-        fragment.innerHTML = props[p].__dangerousHtml
-        element.appendChild(fragment)
-      } else {
-        element.innerHTML = props[p].__dangerousHtml
-      }
+      const fragment = document.createElement('fragment')
+      fragment.innerHTML = props[p].__dangerousHtml
+      element.appendChild(fragment)
     }
     // className
     else if (/^className$/i.test(p)) element.setAttribute('class', props[p])

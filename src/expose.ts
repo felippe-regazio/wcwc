@@ -13,12 +13,12 @@ export function defineAsCustomElements(Component: any, componentName: string, de
   });
 
   // ---------------------------------------------------
-  // Wraps Nano Component (NC) on a Native Web Component
+  // Wraps the WC "Component" on a Native Web Element
   // ---------------------------------------------------
 
   customElements.define(componentName, class extends HTMLElement {
-    $nc: any;
     $rendered: any;
+    $component: any;
     $root: ShadowRoot|HTMLElement;    
     private initialized: boolean = false;
 
@@ -47,7 +47,7 @@ export function defineAsCustomElements(Component: any, componentName: string, de
 
         props: {
           $el: this.$root,
-          ref: (r: any) => (this.$nc = r),
+          ref: (r: any) => (this.$component = r),
           children: render(Array.from(this.childNodes)),
           ...(this.attrsToProps() || {})
         }
@@ -134,11 +134,11 @@ export function defineAsCustomElements(Component: any, componentName: string, de
     }
 
     attributeChangedCallback(name: string, oldv: any, newv: any) {
-      if (this.$nc && oldv !== newv) {
-        this.$nc.props[name] = newv;
-        this.$nc.update();
+      if (this.$component && oldv !== newv) {
+        this.$component.props[name] = newv;
+        this.$component.update();
         this.attrToCSSProp(name, newv).catch(void 0);
-        this.$nc.onAttrChange(name, oldv, newv || config.props[name]?.default);
+        this.$component.onAttrChange(name, oldv, newv || config.props[name]?.default);
       }
     }
   });

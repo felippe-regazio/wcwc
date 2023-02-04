@@ -1,4 +1,4 @@
-import { Component } from './engine/component';
+import { Component } from './component';
 import { defineAsCustomElements } from './expose';
 import { h, Fragment } from './engine';
 
