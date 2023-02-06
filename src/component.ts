@@ -66,13 +66,6 @@ export class Component<P extends Object = any> {
     this._hasUnmounted = true;
   }
 
-  public willMount(): any {}
-  public didMount(): any {}
-  public willUpdate(): any {}
-  public didUpdate(): any {}
-  public didUnmount(): any {}
-  public render(_update?: any): HTMLElement | void {}
-
   /** Will forceRender the component */
   public update(update?: any) {
     this._skipUnmount = true
@@ -123,6 +116,12 @@ export class Component<P extends Object = any> {
   }
 
   private _getHash(): any {}
+  public willMount(): any {}
+  public didMount(): any {}
+  public willUpdate(): any {}
+  public didUpdate(): any {}
+  public didUnmount(): any {}
+  public render(_update?: any): HTMLElement | void {}
   // @ts-ignore
   public onAttrChange(name: string, oldv: any, newv: any) {}
 }
