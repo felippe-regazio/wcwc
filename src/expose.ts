@@ -2,7 +2,7 @@ import { h } from './h';
 import { addStyles } from './add-styles';
 import { _render, render } from './renderer';
 
-export function defineAsCustomElements(Component: any, componentName: string, definedConfig?: ComponentConfig) {
+export function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
   if (window.customElements.get(componentName)) {
     return;
   }

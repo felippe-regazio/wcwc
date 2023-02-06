@@ -1,7 +1,7 @@
 import { h } from './h';
 import { Fragment } from './renderer';
 import { Component } from './component';
-import { defineAsCustomElements } from './expose';
+import { defineAsCustomElement } from './expose';
 
 export class WC extends Component {
   static h: typeof h = h;
@@ -49,7 +49,7 @@ export class WC extends Component {
   }
 
   public static expose(tagname: string, options?: ComponentConfig) {
-    defineAsCustomElements(this, tagname, options);
+    defineAsCustomElement(this, tagname, options);
   }
 }
 
