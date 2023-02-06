@@ -1,6 +1,7 @@
+import { h } from './h';
+import { Fragment } from './renderer';
 import { Component } from './component';
 import { defineAsCustomElements } from './expose';
-import { h, Fragment } from './engine';
 
 export class WC extends Component {
   static h: typeof h = h;

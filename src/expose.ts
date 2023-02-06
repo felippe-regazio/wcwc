@@ -1,5 +1,6 @@
+import { h } from './h';
 import { addStyles } from './add-styles';
-import { _render, render, h } from './engine';
+import { _render, render } from './renderer';
 
 export function defineAsCustomElements(Component: any, componentName: string, definedConfig?: ComponentConfig) {
   if (window.customElements.get(componentName)) {

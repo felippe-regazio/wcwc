@@ -1,5 +1,5 @@
 import { onNodeRemove } from 'nano-jsx/lib/helpers.js'
-import { tick, _render } from './engine'
+import { tick, _render } from './renderer'
 
 export class Component<P extends Object = any> {
   public props: P;
