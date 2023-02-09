@@ -182,7 +182,7 @@ export const renderClassComponent = (classComp: any): any => {
   component.prototype._getHash = () => hash;
 
   const Component = new component(props);
-  Component.willMount();
+  Component.beforeMount();
 
   let el = Component.render();
   el = _render(el);
@@ -194,7 +194,7 @@ export const renderClassComponent = (classComp: any): any => {
   }
 
   tick(() => {
-    Component._didMount();
+    Component._mounted();
   });
 
   return el;

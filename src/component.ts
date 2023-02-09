@@ -32,44 +32,44 @@ export class Component<P extends Object = any> {
   }
 
   private _addNodeRemoveListener() {
-    // check if didUnmount is unused
-    if (/^[^{]+{\s+}$/gm.test(this.didUnmount.toString())) {
+    // check if unmounted is unused
+    if (/^[^{]+{\s+}$/gm.test(this.unmounted.toString())) {
       return
     }
 
     // listen if the root elements gets removed
     onNodeRemove((this.props as any).$el || this.elements[0], () => {
-      !this._skipUnmount && this._didUnmount();
+      !this._skipUnmount && this._unmounted();
     });
   }
 
   // @ts-ignore
-  private _didMount(): any {
+  private _mounted(): any {
     this._addNodeRemoveListener();
-    this.didMount();
+    this.mounted();
   }
 
-  private _willUpdate(): any {
-    this.willUpdate();
+  private _beforeUpdate(): any {
+    this.beforeUpdate();
   }
 
-  private _didUpdate(): any {
-    this.didUpdate();
+  private _updated(): any {
+    this.updated();
   }
 
-  private _didUnmount(): any {
+  private _unmounted(): any {
     if (this._hasUnmounted) {
       return
     }
     
-    this.didUnmount();
+    this.unmounted();
     this._hasUnmounted = true;
   }
 
   /** Will forceRender the component */
   public update(update?: any) {
     this._skipUnmount = true
-    this._willUpdate()
+    this._beforeUpdate()
     // get all current rendered node elements
     const oldElements = [...this.elements]
 
@@ -110,17 +110,17 @@ export class Component<P extends Object = any> {
     // @ts-ignore
     tick(() => {
       this._skipUnmount = false
-      if (!this.elements[0].isConnected) this._didUnmount()
-      else this._didUpdate()
+      if (!this.elements[0].isConnected) this._unmounted()
+      else this._updated()
     })
   }
 
   private _getHash(): any {}
-  public willMount(): any {}
-  public didMount(): any {}
-  public willUpdate(): any {}
-  public didUpdate(): any {}
-  public didUnmount(): any {}
+  public beforeMount(): any {}
+  public mounted(): any {}
+  public beforeUpdate(): any {}
+  public updated(): any {}
+  public unmounted(): any {}
   public render(_update?: any): HTMLElement | void {}
   // @ts-ignore
   public onAttrChange(name: string, oldv: any, newv: any) {}
