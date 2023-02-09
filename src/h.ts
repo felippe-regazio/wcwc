@@ -14,6 +14,10 @@ declare global {
   }
 }
 
+export const Fragment = (props: any) => {
+  return props.children;
+}
+
 // https://stackoverflow.com/a/42405694/12656855
 export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) => {
   let ref: any;

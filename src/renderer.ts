@@ -5,14 +5,39 @@ export interface FC<P = {}> {
   (props: P): Element | void
 }
 
-export const Fragment = (props: any) => {
-  return props.children;
-}
-
 export const removeAllChildNodes = (parent: HTMLElement) => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
+}
+
+export function isDescendant(desc: ParentNode | null, root: Node): boolean {
+  // @ts-ignore
+  return !!desc && (desc === root || isDescendant(desc.parentNode, root))
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+export const onNodeRemove = (element: HTMLElement, callback: () => void) => {
+  let observer = new MutationObserver(mutationsList => {
+    mutationsList.forEach(mutation => {
+      mutation.removedNodes.forEach(removed => {
+        if (isDescendant(element, removed)) {
+          callback()
+          if (observer) {
+            // allow garbage collection
+            observer.disconnect()
+            // @ts-ignore
+            observer = undefined
+          }
+        }
+      })
+    })
+  })
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  })
+  return observer
 }
 
 // https://stackoverflow.com/a/7616484/12656855
