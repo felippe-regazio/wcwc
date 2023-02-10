@@ -3,10 +3,6 @@ import { addStyles } from './add-styles';
 import { _render, render } from './renderer';
 
 export function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
-  if (window.customElements.get(componentName)) {
-    return;
-  }
-
   const config = Object.assign({} as ComponentConfig, {
     props: {},
     shadow: undefined,
@@ -26,6 +22,21 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     constructor() {
       super();
       this.$root = this.root();
+    }
+
+    connectedCallback() {
+      /*
+       * The constructor for a custom element is not supposed to read or write its DOM. 
+       * It shouldn't create child elements or modify attributes. That work needs to be 
+       * done later, usually in a connectedCallback() method (although note that connectedCallback() 
+       * can be called multiple times if the element is removed and re-added to the DOM, 
+       * so you may need to check for this, or undo changes in a disconnectedCallback()).
+       * SPEC: https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
+       */
+      !this.initialized && this.init();
+    }    
+
+    init() {
       this.$rendered = this.renderNC();
 
       addStyles({
@@ -33,7 +44,10 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         styles: Component.styles || [],
         tagname: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
-    }
+
+      this.appendComponent(this.$rendered);
+      this.initialized = true;
+    }    
 
     private renderNC() {
       /*
@@ -55,23 +69,6 @@ export function defineAsCustomElement(Component: any, componentName: string, def
       })
 
       return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
-    }  
-    
-    connectedCallback() {
-      /*
-       * The constructor for a custom element is not supposed to read or write its DOM. 
-       * It shouldn't create child elements or modify attributes. That work needs to be 
-       * done later, usually in a connectedCallback() method (although note that connectedCallback() 
-       * can be called multiple times if the element is removed and re-added to the DOM, 
-       * so you may need to check for this, or undo changes in a disconnectedCallback()).
-       * SPEC: https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
-       */
-      !this.initialized && this.init();
-    }    
-
-    init() {
-      this.appendComponent(this.$rendered);
-      this.initialized = true;
     }
 
     static get observedAttributes() {

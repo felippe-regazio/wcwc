@@ -173,7 +173,9 @@ export class WC extends Component {
   static styles?: StaticStyle[];
 
   public static expose(tagname: string, options?: ComponentConfig) {
-    defineAsCustomElement(this, tagname, options);
+    if (!window.customElements.get(tagname)) {
+      defineAsCustomElement(this, tagname, options);
+    }
   }
 }
 
