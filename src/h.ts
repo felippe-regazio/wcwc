@@ -1,3 +1,38 @@
+/**
+ * This file is part of WCWC Microframework. Most of the functions here were
+ * originally wrote by Yannick (https://github.com/yandeu) for NanoJSX 
+ * (https://nanojsx.io/). The functions are part of the JSX Engine of NanoJSX
+ * and were decoupled from the original project since they were slightly modified
+ * to work direct with Vanilla Web Components. Since NanoJSX is bigger then a 
+ * couple functions and we need to make deep modifications on its core, it was
+ * better to move the original functions directly to WCWC as a Core and not as
+ * a dependency. All credits to Yannick and his awesome NanoJSX project.
+ * 
+ * This is our Hyperscript function, which is responsible to convert JSX calls
+ * from the TS compiler to functions that manipulates and generates elements
+ * directly to the DOM. This function is exposed directly on the { WC } class
+ * on index.ts and its used by the TS (tsconfig) as JSX pragma. This file also
+ * exposes the fragment function, which is used to generate a JSX fragment. To 
+ * configure your TS to compile JSX using the WCWC pragma you must install this
+ * library and add those lines on you "tsconfig.json":
+ * 
+ *  {
+ *    "compilerOptions": {
+ *       "jsx": "react",
+ *       "jsxFactory": "WC.h",
+ *       "jsxFragmentFactory": "WC.f"
+ *    }
+ *  }
+ * 
+ * After this, you must import the WC on your file, this will automatically enable
+ * the TS to compile JSX on your component:
+ * 
+ * import { WC } from 'wcwc';
+ * 
+ * Now just write your component using JSX as you wish. All the JSX will be compiled
+ * to functions that manipulates the DOM directly and are optimized to save time,
+ * space and complexity. See the WCWC docs for further details.
+ */
 import { hNS, appendChildren } from './renderer';
 
 declare global {

@@ -8,14 +8,14 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
         .join(' ')
         .trim();
 
-      if (!origin.isConnected || typeof window === 'undefined' || !styleContent) {
+      if (typeof window === 'undefined' || !styleContent) {
         return resolve(true);
       }
       
       const root = origin.getRootNode() as Document|ShadowRoot;
       const shadowed = root instanceof ShadowRoot;
 
-      if (!shadowed && root?.head?.querySelector(`style[data-wc-name=${tagname}]`)) {
+      if (!shadowed && root?.head?.querySelector(`style[data-tagname=${tagname}]`)) {
         return resolve(true);
       }
       

@@ -1,9 +1,29 @@
-/** Creates a new Microtask using Promise() */
-export const tick = Promise.prototype.then.bind(Promise.resolve()) as (cb: Function) => any;
+/**
+ * This file is part of WCWC Microframework. Most of the functions here were
+ * originally wrote by Yannick (https://github.com/yandeu) for NanoJSX 
+ * (https://nanojsx.io/). The functions are part of the JSX Engine of NanoJSX
+ * and were decoupled from the original project since they were slightly modified
+ * to work direct with Vanilla Web Components. Since NanoJSX is bigger then a 
+ * couple functions and we need to make deep modifications on its core, it was
+ * better to move the original functions directly to WCWC as a Core and not as
+ * a dependency. All credits to Yannick and his awesome NanoJSX project.
+ * 
+ * The functions in this files are used by the lifecycle management and the
+ * hyperscript compilation (JSX) to render the elements at runtime. There is no
+ * Virtual DOM, all the element lifecycle, state, render and children management
+ * is meant to be generated directly in the DOM. There is a LOT of optimization
+ * on this functions in comparing to original ones because our context is way
+ * smaller than what the NanoJSX framework does. If you are willing to understand
+ * this file you should starting by the render and _render functions. They are
+ * responsible to link the component current state as a DOM output.
+ */
 
 export interface FC<P = {}> {
   (props: P): Element | void
 }
+
+/** Creates a new Microtask using Promise() */
+export const tick = Promise.prototype.then.bind(Promise.resolve()) as (cb: Function) => any;
 
 export const removeAllChildNodes = (parent: HTMLElement) => {
   while (parent.firstChild) {

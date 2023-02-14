@@ -9,9 +9,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     ...(definedConfig || {}),
   });
 
-  // ---------------------------------------------------
   // Wraps the WC "Component" on a Native Web Element
-  // ---------------------------------------------------
 
   customElements.define(componentName, class extends HTMLElement {
     $rendered: any;
@@ -37,17 +35,16 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     }    
 
     init() {
-      this.$rendered = this.renderNC();
-
       addStyles({
         origin: this.$root,
         styles: Component.styles || [],
         tagname: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
-
+      
+      this.$rendered = this.renderNC();
       this.appendComponent(this.$rendered);
       this.initialized = true;
-    }    
+    }
 
     private renderNC() {
       /*
@@ -106,7 +103,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
           }
 
           if (attr.css) {
-            this.attrToCSSProp(attrName, attr.default as any);
+            this.attrToCSSProp(attrName, acc[attrName] as any);
           }
     
           return acc;
