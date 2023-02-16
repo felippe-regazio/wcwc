@@ -9,8 +9,11 @@
   ],
   "scripts": {
     "clear": "rimraf --sync ./lib",
-    "dev": "npm run clear && webpack --watch --mode=development",
-    "build": "npm run clear && webpack --mode=production"
+    "dev": "npm run build:dev -- --watch",
+    "build": "npm run clear && webpack --mode=production",
+    "build:dev": "npm run clear && webpack --mode=development",
+    "test": "npm run build:dev && npm run test:module",
+    "test:module": "node ./test/module/test.cjs && node ./test/module/test.mjs"
   },
   "keywords": [],
   "author": "Felippe Regazio",

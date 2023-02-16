@@ -1,5 +1,5 @@
 /**
- * This file is part of WCWC Microframework. Most of the functions here were
+ * This file is part of WCWC Component Creator. Most of the functions here were
  * originally wrote by Yannick (https://github.com/yandeu) for NanoJSX 
  * (https://nanojsx.io/). The functions are part of the JSX Engine of NanoJSX
  * and were decoupled from the original project since they were slightly modified

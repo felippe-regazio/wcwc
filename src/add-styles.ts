@@ -1,3 +1,13 @@
+/**
+ * This function takes a .scss imported file (array style) or a String
+ * and adds to the page as a <style> script. First it will extract the
+ * style string, then will check if this style were alreadt added. If 
+ * not, will add the style. Elements with shadow dom will have the inner
+ * styles always appended.
+ * 
+ * @param options: addStyleOptions
+ * @returns Promise<boolean>
+ */
 export async function addStyles(options: addStylesOptions): Promise<boolean> {
   return new Promise((resolve, reject) => {
     try {

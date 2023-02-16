@@ -3,7 +3,7 @@ import { defineAsCustomElement } from './expose';
 import { onNodeRemove, tick, _render } from './renderer';
 
 /**
- * This class defines a Component. This is not the web component itselft,
+ * This class defines a Component. This is not the web component itself,
  * but the entire Component API that is used to build the whole lifecycle
  * and features to build everything that a WC can render. This will be what
  * a Vanilla Web Component will be binded too, and also defines and controls
@@ -11,12 +11,12 @@ import { onNodeRemove, tick, _render } from './renderer';
  * 
  * This class was originally wrote by Yannick (https://github.com/yandeu) for 
  * NanoJSX class-based components (https://nanojsx.io/) and were decoupled from 
- * the original project since it was slightly modified to work direct with Vanilla 
- * Web Components and only. Since NanoJSX is bigger then a couple functions and we 
- * need to make deep modifications on its core, it was better to move the original 
- * class directly to WCWC as a Core and not as a dependency.
+ * the original project since it was slightly modified to work direct with WCWC
+ * Vanilla Web Components and only. Since NanoJSX is bigger then a couple functions 
+ * and we need to make deep modifications on its core, it was better to move the 
+ * original class directly to WCWC as a Core and not as a dependency.
  */
-export class Component<P extends Object = any> {
+class Component<P extends Object = any> {
   public props: P;
   public id: string;
   public $el: HTMLElement;

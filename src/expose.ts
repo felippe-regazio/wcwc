@@ -2,6 +2,16 @@ import { h } from './h';
 import { addStyles } from './add-styles';
 import { _render, render } from './renderer';
 
+/**
+ * This function receives a WCWC Class-Based Component and wrap it into
+ * a Vanilla Web Component. All the component lifecycle and data flow will
+ * be binded between the two different interfaces forming a single new
+ * powerful Web Component that can be used anywhere.
+ * 
+ * @param Component 
+ * @param componentName 
+ * @param definedConfig 
+ */
 export function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
   const config = Object.assign({} as ComponentConfig, {
     props: {},

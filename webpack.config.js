@@ -27,11 +27,15 @@ module.exports = (_env, argv) => {
     output: {
       filename: `[name].js`,
       path: path.resolve(__dirname, 'lib'),
+      globalObject: 'globalThis',
       library: {
         type: 'umd'
       }
     },
-    optimization: {
+  }
+
+  if (mode === 'production') {
+    config.optimization = {
       minimize: true,
       minimizer: [ new TerserPlugin() ]    
     }
