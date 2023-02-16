@@ -30,6 +30,11 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     constructor() {
       super();
       this.$root = this.root();
+      Component.prototype._beforeMount();
+    }
+
+    disconnectedCallback() {
+      this.$component && this.$component._unmounted();
     }
 
     connectedCallback() {
@@ -54,6 +59,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
       this.$rendered = this.renderNC();
       this.appendComponent(this.$rendered);
       this.initialized = true;
+      this.$component._mounted();
     }
 
     private renderNC() {
@@ -73,7 +79,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
           children: render(Array.from(this.childNodes)),
           ...(this.attrsToProps() || {})
         }
-      })
+      });
 
       return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
     }
@@ -143,7 +149,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         this.$component.props[name] = newv;
         this.$component.update();
         this.attrToCSSProp(name, newv).catch(void 0);
-        this.$component.onAttrChange(name, oldv, newv || config.props[name]?.default);
+        this.$component.attrChanged(name, oldv, newv || config.props[name]?.default);
       }
     }
   });

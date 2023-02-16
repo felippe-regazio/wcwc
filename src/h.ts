@@ -1,13 +1,4 @@
 /**
- * This file is part of WCWC Component Creator. Most of the functions here were
- * originally wrote by Yannick (https://github.com/yandeu) for NanoJSX 
- * (https://nanojsx.io/). The functions are part of the JSX Engine of NanoJSX
- * and were decoupled from the original project since they were slightly modified
- * to work direct with Vanilla Web Components. Since NanoJSX is bigger then a 
- * couple functions and we need to make deep modifications on its core, it was
- * better to move the original functions directly to WCWC as a Core and not as
- * a dependency. All credits to Yannick and his awesome NanoJSX project.
- * 
  * This is our Hyperscript function, which is responsible to convert JSX calls
  * from the TS compiler to functions that manipulates and generates elements
  * directly to the DOM. This function is exposed directly on the { WC } class

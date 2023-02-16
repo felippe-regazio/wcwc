@@ -1,13 +1,4 @@
 /**
- * This file is part of WCWC Component Creator. Most of the functions here were
- * originally wrote by Yannick (https://github.com/yandeu) for NanoJSX 
- * (https://nanojsx.io/). The functions are part of the JSX Engine of NanoJSX
- * and were decoupled from the original project since they were slightly modified
- * to work direct with Vanilla Web Components. Since NanoJSX is bigger then a 
- * couple functions and we need to make deep modifications on its core, it was
- * better to move the original functions directly to WCWC as a Core and not as
- * a dependency. All credits to Yannick and his awesome NanoJSX project.
- * 
  * The functions in this files are used by the lifecycle management and the
  * hyperscript compilation (JSX) to render the elements at runtime. There is no
  * Virtual DOM, all the element lifecycle, state, render and children management
@@ -16,14 +7,10 @@
  * smaller than what the NanoJSX framework does. If you are willing to understand
  * this file you should starting by the render and _render functions. They are
  * responsible to link the component current state as a DOM output.
- */
-
-export interface FC<P = {}> {
-  (props: P): Element | void
-}
-
-/** 
- * Creates a new Microtask. This is important to allow our components to update
+ * 
+ * ============================================================================
+ * 
+ * Tick: Creates a new Microtask. This is important to allow our components to update
  * their lifecycle before a new Event Loop arise. An older implementation was
  * using a Promise that imediatly resolve itself. But now we will prefer to use
  * a new queueMicrotask() API for some reasons here:
@@ -39,75 +26,27 @@ export const removeAllChildNodes = (parent: HTMLElement) => {
   }
 }
 
-export function isDescendant(desc: ParentNode | null, root: Node): boolean {
-  // @ts-ignore
-  return !!desc && (desc === root || isDescendant(desc.parentNode, root))
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-export const onNodeRemove = (element: HTMLElement, callback: () => void) => {
-  let observer = new MutationObserver(mutationsList => {
-    mutationsList.forEach(mutation => {
-      mutation.removedNodes.forEach(removed => {
-        if (isDescendant(element, removed)) {
-          callback()
-          if (observer) {
-            // allow garbage collection
-            observer.disconnect()
-            // @ts-ignore
-            observer = undefined
-          }
-        }
-      })
-    })
-  })
-  observer.observe(document, {
-    childList: true,
-    subtree: true
-  })
-  return observer
-}
-
-// https://stackoverflow.com/a/7616484/12656855
-export const strToHash = (s: string) => {
-  let hash = 0;
-
-  for (let i = 0; i < s.length; i++) {
-    const chr = s.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-
-  return Math.abs(hash).toString(32);
-}
-
 export const appendChildren = (element: HTMLElement | SVGElement, children: HTMLElement[], escape = true) => {
-  // if the child is an html element
   if (!Array.isArray(children)) {
     appendChildren(element, [ children ], escape);
     return;
   }
 
-  // htmlCollection to array
   if (typeof children === 'object') {
     children = Array.prototype.slice.call(children);
   }
 
   children.forEach(child => {
     if (Array.isArray(child)) {
-      // if child is an array of children, append them instead
       appendChildren(element, child, escape);
     } else {
-      // render the component
       const c = _render(child) as HTMLElement;
 
       if (typeof c !== 'undefined') {
         if (Array.isArray(c)) {
-          // if c is an array of children, append them instead
           appendChildren(element, c, escape);
         } else {
-          // apply the component to parent element
-          element.appendChild(c.nodeType == null ? document.createTextNode(c.toString()) : c)
+          element.appendChild(c.nodeType == null ? document.createTextNode(c.toString()) : c);
         }
       }
     }
@@ -151,8 +90,8 @@ export const render = (component: any, parent: HTMLElement | null = null, remove
       removeAllChildNodes(parent);
     }
 
-    // if parent and child are the same, we replace the parent instead of appending to it
     if (el && parent.id && parent.id === el.id && parent.parentElement) {
+      // if parent and child are the same, we replace the parent instead of appending to it
       parent.parentElement.replaceChild(el, parent)
     } else {
       // append element(s) to the parent
@@ -167,7 +106,6 @@ export const render = (component: any, parent: HTMLElement | null = null, remove
 
     return parent;
   } else {
-    // returning one child or an array of children
     return el;
   }
 }
@@ -227,28 +165,15 @@ export const renderFunctionalComponent = (fncComp: any): any => {
 
 export const renderClassComponent = (classComp: any): any => {
   const { component, props } = classComp;
-
-  // calc hash
-  const hash = strToHash(component.toString());
-
-  // make hash accessible in constructor, without passing it to it
-  component.prototype._getHash = () => hash;
-
-  const Component = new component(props);
-  Component.beforeMount();
+  const Component = new component(props);  
 
   let el = Component.render();
   el = _render(el);
   Component.elements = el;
 
-  // pass the component instance as ref
   if (props && props.ref) {
     props.ref(Component);
   }
-
-  tick(() => {
-    Component._mounted();
-  });
 
   return el;
 }
