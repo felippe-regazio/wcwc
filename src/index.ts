@@ -1,6 +1,6 @@
 import { h, Fragment } from './h';
-import { defineAsCustomElement } from './expose';
 import { tick, _render } from './renderer';
+import { defineAsCustomElement } from './expose';
 
 /**
  * This class defines a Component. This is not the web component itself,
