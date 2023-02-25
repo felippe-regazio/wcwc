@@ -89,12 +89,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     }
 
     private root() {
-      if (config.shadow) {
-        this.attachShadow(config.shadow);
-        return this.shadowRoot as ShadowRoot;
-      }
-       
-      return this;
+      return config.shadow ? this.attachShadow(config.shadow) : this;
     }
 
     private appendComponent(el: any) {

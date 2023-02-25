@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- 
+    index.js is served from memory by webpack-dev-server
+    and mimics the lib/index.js but with most recent code.
+    the index will expose ths globals { WC, wcwc } that 
+    can be accessed from the spcs es6 modules to be tested
+  -->
+  <script src="index.js"></script>
+</head>
+<body>
+  <div id="tester-output"></div>
+  
+  <script src="spec/index.mjs" type="module"></script>
+  <script src="spec/expose.mjs" type="module"></script>
+</body>
+</html>

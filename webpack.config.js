@@ -32,6 +32,12 @@ module.exports = (_env, argv) => {
         type: 'umd'
       }
     },
+    devServer: {
+      port: 9000,
+      static: {
+        directory: path.join(__dirname, 'test', 'browser'),
+      }
+    }    
   }
 
   if (mode === 'production') {
