@@ -1,4 +1,4 @@
-import { Tester } from './tester.mjs';
+import { Tester } from '../tester/index.mjs';
 
 const $t = new Tester();
 
@@ -95,3 +95,136 @@ $t.it(`Check { expose } with { mode: 'closed' } option - Shadow DOM WC`, () => {
   shadowed.remove();
 });
 
+$t.it('Check Component Lifecycle Hooks', () => {
+  $t.assert('beforeMount', () => {
+    const keycheck = '__wcBeforeMountCheck';
+
+    (class TestComponent extends WC {
+      render() { 
+        this.rendered = true;
+        return 'Hello world'; 
+      }
+      
+      beforeMount() {
+        window[keycheck] = this.rendered;
+      }
+    }).expose('wc-before-mount');
+
+    const c = document.createElement('wc-before-mount');
+    document.body.append(c);
+    c.remove();
+
+    return window[keycheck] === undefined;
+  });
+
+  $t.assert('mounted', async () => {
+    (class TestComponent extends WC {
+      render() { 
+        return Object.assign(document.createElement('div'), { id: 'mounted', style: 'display: none' }); 
+      }
+      
+      beforeMount() {
+        this.mustBeTrue = !this.$el && !this.isConnected;
+      }
+
+      mounted() {
+        this.$el.__mounted(this.mustBeTrue && this.$el.isConnected);
+      }
+    }).expose('wc-mounted');
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-mounted');
+      c.__mounted = result => resolve(result);
+      
+      document.body.append(c);
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('beforeUpdate', async () => {
+    (class TestComponent extends WC {
+      data = this.reactive({ content: 1 })
+
+      render() { 
+        return Object.assign(document.createElement('div'), {
+          style: 'display: none',
+          textContent: this.data.content
+        }); 
+      }
+
+      mounted() {
+        this.data.content = 2;
+      }
+      
+      beforeUpdate() {
+        this.$el.__beforeUpdate(this.$el.textContent.trim() === '1');
+      }
+    }).expose('wc-before-update');
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-before-update');
+      c.__beforeUpdate = result => resolve(result);
+      
+      document.body.append(c);
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('updated', async () => {
+    (class TestComponent extends WC {
+      data = this.reactive({ content: 1 })
+
+      render() { 
+        return Object.assign(document.createElement('div'), {
+          style: 'display: none',
+          textContent: this.data.content
+        }); 
+      }
+
+      mounted() {
+        this.data.content = 2;
+      }
+      
+      updated() {
+        this.$el.__updated(this.$el.textContent.trim() === '2');
+      }
+    }).expose('wc-updated');
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-updated');
+      c.__updated = result => resolve(result);
+      
+      document.body.append(c);
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('unmounted', async () => {
+    (class TestComponent extends WC {
+      render() { 
+        return Object.assign(document.createElement('div'), {
+          style: 'display: none',
+          textContent: 'should be unmounted'
+        }); 
+      }
+
+      mounted() {
+        this.wasmounted = this.$el.isConnected;
+      }
+
+      unmounted() {
+        this.$el.__unmounted(this.wasmounted && !this.$el.isConnected);
+      }
+    }).expose('wc-unmounted');
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-unmounted');
+      c.__unmounted = result => resolve(result);
+      
+      document.body.append(c);
+      c.remove();
+      
+      setTimeout(() => resolve(false), 200);
+    });
+  });  
+});

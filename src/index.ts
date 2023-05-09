@@ -37,12 +37,12 @@ class Component<P extends Object = any> {
   
   // @ts-ignore
   private _beforeMount(): any {
-    tick(() => this.beforeMount());
+    this.beforeMount();
   }
   
   // @ts-ignore
   private _mounted(): any {
-    tick(() => this.mounted());
+    this.mounted();
   }
 
   private _unmounted(): any {

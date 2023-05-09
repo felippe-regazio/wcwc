@@ -5,7 +5,7 @@ import { _render, render } from './renderer';
 /**
  * This function receives a WCWC Class-Based Component and wrap it into
  * a Vanilla Web Component. All the component lifecycle and data flow will
- * be binded between the two different interfaces forming a single new
+ * be binded between the two different interfaces shaping a single new
  * powerful Web Component that can be used anywhere.
  * 
  * @param Component 
@@ -19,7 +19,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     ...(definedConfig || {}),
   });
 
-  // Wraps the WC "Component" on a Native Web Element
+  // ------------------ Wraps the WC "Component" on a Native Web Element
 
   customElements.define(componentName, class extends HTMLElement {
     $rendered: any;
@@ -99,7 +99,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
       } else {
         this.$root.append(...el.childNodes);
       }
-    }    
+    }
 
     private attrsToProps(): unknown {
       return Object.keys(config.props)

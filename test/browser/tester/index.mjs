@@ -23,6 +23,10 @@ export class Tester {
             font-weight: 700;
           }
 
+          #tester-output .tester-output-info {
+            color: #555555;
+          }
+
           #tester-output .tester-output-success {
             color: #097969;
           }
@@ -44,6 +48,7 @@ export class Tester {
     });
 
     this.$output.append(msgElement);
+    return msgElement;
   }
   
   it(msg, cb) {
@@ -57,17 +62,20 @@ export class Tester {
     }
   }
 
-  assert(msg, cb) {
+  async assert(msg, cb) {
     let result;
+    let holder = this.log('<p></p>');
 
     try {
-      result = cb && cb();
+      result = await cb();
     } catch(error) {
       this.log(error, 'error');
     }
 
-    const emoji = result ? '✅' : '❌';
-    const clazz = result ? 'success' : 'error';
-    this.log(`<p>${emoji} ${msg}</p>`, clazz);
+    const emoji = result === true ? '✅' : '❌';
+    const level = result ? 'success' : 'error';
+
+    holder.innerHTML = `${emoji} ${msg}`;
+    holder.setAttribute('class', `tester-output-${level}`);
   }
 }
