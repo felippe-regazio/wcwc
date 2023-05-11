@@ -127,10 +127,10 @@ export const _render = (comp: any): any => {
   if (comp && comp.nodeType === 3) return comp
 
   // Class Component
-  if (comp && comp.component && comp.component.isClass) return renderClassComponent(comp)
+  if (comp && comp.component && comp.component.isWCWCClass) return renderClassComponent(comp)
 
   // Class Component (Uninitialized)
-  if (comp.isClass) return renderClassComponent({ component: comp, props: {} })
+  if (comp.isWCWCClass) return renderClassComponent({ component: comp, props: {} })
 
   // Functional Component
   if (comp.component && typeof comp.component === 'function') return renderFunctionalComponent(comp)
@@ -139,7 +139,7 @@ export const _render = (comp: any): any => {
   if (Array.isArray(comp)) return (comp.map(c => _render(c)) as any).flat()
 
   // function
-  if (typeof comp === 'function' && !comp.isClass) return _render(comp())
+  if (typeof comp === 'function' && !comp.isWCWCClass) return _render(comp())
 
   // if component is a HTMLElement (rare case)
   if (comp.component && comp.component.tagName && typeof comp.component.tagName === 'string')

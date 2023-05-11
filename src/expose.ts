@@ -53,16 +53,16 @@ export function defineAsCustomElement(Component: any, componentName: string, def
       addStyles({
         origin: this.$root,
         styles: Component.styles || [],
-        tagname: this.tagName.toLocaleLowerCase(), 
+        dataId: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
       
-      this.$rendered = this.renderNC();
-      this.appendComponent(this.$rendered);
+      this.$rendered = this.renderWC();
+      this.appendWC(this.$rendered);
       this.initialized = true;
       this.$component._mounted();
     }
 
-    private renderNC() {
+    private renderWC() {
       /*
        * because nano-jsx update needs a "el.parentElement" we need 
        * to wrap the children in a div when using shadow mode. when
@@ -92,7 +92,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
       return config.shadow ? this.attachShadow(config.shadow) : this;
     }
 
-    private appendComponent(el: any) {
+    private appendWC(el: any) {
       if (!!this.shadowRoot) {
         el.dataset.wcRoot = true;
         this.$root.append(el);
@@ -103,21 +103,21 @@ export function defineAsCustomElement(Component: any, componentName: string, def
 
     private attrsToProps(): unknown {
       return Object.keys(config.props)
-        .reduce((acc: any, attrName: string) => {
-          const attr = config.props[attrName];
+        .reduce((data: any, attrName: string) => {
+          const attrConfig = config.props[attrName];
 
-          if (this.hasAttribute(attrName)) {
-            const attrValue = this.getAttribute(attrName) || attr.default || '';
-            acc[attrName] = attrValue;
-          } else {
-            acc[attrName] = attr.default;
+          if (!this.getAttribute(attrName) && attrConfig.initial) {
+            this.setAttribute(attrName, String(attrConfig.initial));
+          }
+          
+          // mirror current attribute value to incremental props
+          data[attrName] = this.getAttribute(attrName);
+          
+          if (attrConfig.css && data[attrName]) {
+            this.attrToCSSProp(attrName, data[attrName] as any);
           }
 
-          if (attr.css) {
-            this.attrToCSSProp(attrName, acc[attrName] as any);
-          }
-    
-          return acc;
+          return data;
         }, {});
     }
 
@@ -128,7 +128,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
 
           if (attr && attr.css) {
             const propName = typeof attr.css === 'string' ? attr.css : name;
-            this.style.setProperty(`--wc-attr-${propName}`, String(value || attr.default || ''));
+            this.style.setProperty(`--wc-attr-${propName}`, String(value || attr.initial || ''));
           }
 
           return resolve(true);
@@ -144,7 +144,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         this.$component.props[name] = newv;
         this.$component.update();
         this.attrToCSSProp(name, newv).catch(void 0);
-        this.$component.attrChanged(name, oldv, newv || config.props[name]?.default);
+        this.$component.attrChanged(name, oldv, newv);
       }
     }
   });

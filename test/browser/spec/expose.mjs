@@ -226,5 +226,33 @@ $t.it('Check Component Lifecycle Hooks', () => {
       
       setTimeout(() => resolve(false), 200);
     });
+  });
+
+  $t.assert('attrChanged', async () => {
+    (class TestComponent extends WC {
+      attrs = [];
+
+      render() { 
+        return Object.assign(document.createElement('div'), { style: 'display: none' });
+      }
+
+      attrChanged(name, oldv, newv) {
+        if (oldv === '1' && newv === '2') {
+          this.$el.__done(true);
+        }
+      }
+    }).expose('wc-attr-changed', {
+      props: {
+        testing: { initial: 1 }
+      }
+    });
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-attr-changed');
+      c.__done = result => resolve(result);
+      document.body.append(c);
+      c.setAttribute('testing', '2');
+      setTimeout(() => resolve(false), 200);
+    });
   });  
 });

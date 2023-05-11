@@ -8,12 +8,12 @@ type ComponentConfigProps = {
 };
 
 type ComponentConfigPropValue = { 
-  default: unknown, 
+  initial: unknown, 
   css?: boolean|string
 };
 
 type addStylesOptions = {
-  tagname: string, 
+  dataId: string, 
   styles: StaticStyle[], 
   origin: HTMLElement|ShadowRoot
 }

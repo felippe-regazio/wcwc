@@ -12,11 +12,9 @@ import { defineAsCustomElement } from './expose';
 class Component<P extends Object = any> {
   public props: P;
   public $el: HTMLElement;
-  public isClass = true;
-  public static isClass = true;
-
   private _elements: HTMLElement[] = [];
   private _hasUnmounted = false;
+  public static isWCWCClass = true;
 
   constructor(props: P) {
     this.props = props || {};
