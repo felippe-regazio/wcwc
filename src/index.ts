@@ -57,7 +57,7 @@ class Component<P extends Object = any> {
   public update(update?: any) {
     this.beforeUpdate();
 
-    const oldElements = [...this.elements];
+    const oldElements = [ ...this.elements ];
     
     this._elements = [];
     let el = this.render(update);
@@ -78,7 +78,10 @@ class Component<P extends Object = any> {
 
     oldElements.forEach((child: HTMLElement) => {
       if (!this.elements.includes(child)) {
-        child.remove();
+        if (typeof child !== 'string') {
+          child.remove();
+        }
+
         (child as any) = null;
       }
     });

@@ -95,6 +95,96 @@ $t.it(`Check { expose } with { mode: 'closed' } option - Shadow DOM WC`, () => {
   shadowed.remove();
 });
 
+$t.it(`Check { expose } props declaration and props reactivity`, () => {
+  $t.assert('Non exposed props will not be reactive, wont trigger update and and wont be on this.props object', () => {
+    (class TestComponent extends WC {
+      ok = true;
+
+      render() { 
+        return this.props.testing || '';
+      }
+
+      updated() {
+        this.ok = false;
+      }
+
+      unmounted() {
+        this.$el.__done(this.ok && !this.props.testing);
+      }
+    }).expose('wc-prop-check-a');
+
+    return new Promise(resolve => {
+      const c = document.createElement('wc-prop-check-a');
+      c.__done = result => resolve(result);
+      document.body.append(c);
+      c.setAttribute('testing', '1');
+      c.setAttribute('testing', '2');
+      c.remove();  
+      setTimeout(() => resolve(false), 200);
+    })
+  });
+
+  $t.assert('Exposed props must be reactive, trigger update and be on this.props', () => {
+    (class TestComponent extends WC {
+      ok = false;
+
+      render() { 
+        return this.props.testing;
+      }
+
+      updated() {
+        this.ok = true;
+      }
+
+      unmounted() {
+        this.$el.__done(this.ok && this.props.testing && this.$el.textContent === '2');
+      }
+    }).expose('wc-prop-check-b', {
+      props: {
+        testing: { initial: 1 }
+      }
+    });
+
+    return new Promise(resolve => {
+      const c = document.createElement('wc-prop-check-b');
+      c.__done = result => resolve(result);
+      document.body.append(c);
+      c.setAttribute('testing', '2');
+      // c.remove();  
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('Exposed props with { css: true } must mirror to css prop', () => {
+    (class TestComponent extends WC {
+      render() { 
+        return '';
+      }
+
+      mounted() {
+        const propCheck = window.getComputedStyle(this.$el).getPropertyValue('--wc-attr-testCssColor');
+        
+        this.$el.__done(propCheck === 'blue');
+      }
+    }).expose('wc-prop-check-c', {
+      props: {
+        testCssColor: { 
+          css: true,
+          initial: 'blue'
+        }
+      }
+    });
+
+    return new Promise(resolve => {
+      const c = document.createElement('wc-prop-check-c');
+      c.__done = result => resolve(result);
+      document.body.append(c);
+      c.remove();
+      setTimeout(() => resolve(false), 200);
+    });    
+  });
+});
+
 $t.it('Check Component Lifecycle Hooks', () => {
   $t.assert('beforeMount', () => {
     const keycheck = '__wcBeforeMountCheck';
@@ -232,14 +322,12 @@ $t.it('Check Component Lifecycle Hooks', () => {
     (class TestComponent extends WC {
       attrs = [];
 
-      render() { 
+      render() {
         return Object.assign(document.createElement('div'), { style: 'display: none' });
       }
 
       attrChanged(name, oldv, newv) {
-        if (oldv === '1' && newv === '2') {
-          this.$el.__done(true);
-        }
+        this.$el.__done(name === 'testing' && oldv === '1' && newv === '2');
       }
     }).expose('wc-attr-changed', {
       props: {

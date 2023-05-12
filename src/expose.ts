@@ -142,8 +142,9 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     attributeChangedCallback(name: string, oldv: any, newv: any) {
       if (this.$component && oldv !== newv) {
         this.$component.props[name] = newv;
-        this.$component.update();
         this.attrToCSSProp(name, newv).catch(void 0);
+
+        this.$component.update();
         this.$component.attrChanged(name, oldv, newv);
       }
     }
