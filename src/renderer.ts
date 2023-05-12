@@ -115,7 +115,7 @@ export const _render = (comp: any): any => {
   if (comp === null || comp === false || typeof comp === 'undefined') return []
 
   // string, number
-  if (typeof comp === 'string' || typeof comp === 'number') return comp.toString()
+  if (typeof comp === 'string' || typeof comp === 'number') return document.createTextNode(String(comp))
 
   // SVGElement
   if (comp.tagName && comp.tagName.toLowerCase() === 'svg') return SVG({ children: [comp] })
@@ -165,15 +165,12 @@ export const renderFunctionalComponent = (fncComp: any): any => {
 
 export const renderClassComponent = (classComp: any): any => {
   const { component, props } = classComp;
-  const Component = new component(props);  
-
-  let el = Component.render();
-  el = _render(el);
-  Component.elements = el;
+  const $component = new component(props);  
+  const rendered = _render($component.render());
 
   if (props && props.ref) {
-    props.ref(Component);
+    props.ref($component);
   }
 
-  return el;
+  return rendered;
 }

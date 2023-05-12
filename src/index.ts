@@ -12,25 +12,11 @@ import { defineAsCustomElement } from './expose';
 class Component<P extends Object = any> {
   public props: P;
   public $el: HTMLElement;
-  private _elements: HTMLElement[] = [];
-  private _hasUnmounted = false;
   public static isWCWCClass = true;
 
   constructor(props: P) {
     this.props = props || {};
     this.$el = (props as any).$el;
-  }
-
-  public get elements(): HTMLElement[] {
-    return this._elements || []
-  }
-
-  public set elements(elements: HTMLElement[]) {
-    if (!Array.isArray(elements)) {
-      elements = [ elements ];
-    }
-
-    this._elements.push(...elements);
   }
   
   // @ts-ignore
@@ -44,40 +30,22 @@ class Component<P extends Object = any> {
   }
 
   private _unmounted(): any {
-    tick(() => {
-      if (this._hasUnmounted) {
-        return;
-      }
-      
-      this.unmounted();
-      this._hasUnmounted = true;
-    });
+    tick(() => this.unmounted());
   }
 
   public update(update?: any) {
     this.beforeUpdate();
 
-    const oldElements = [ ...this.elements ];
+    const oldElements = Array.from(this.$el.childNodes) as any;
+    const rendered = _render(this.render(update)) as any;
+    const newElements = Array.isArray(rendered) ? rendered : [ rendered ];
     
-    this._elements = [];
-    let el = this.render(update);
-    el = _render(el);
-    this.elements = el as any;
-    
-    const parent = oldElements[0].parentElement as HTMLElement;
-    
-    if (!parent) {
-      console.warn('Component needs a parent element to get updated!');
-    }
-    
-    this.elements.forEach((child: HTMLElement) => {
-      if (parent) {
-        parent.insertBefore(child, oldElements[0]);
-      }
+    newElements.forEach((child: HTMLElement) => {
+      this.$el.insertBefore(child, oldElements[0]);
     });
 
     oldElements.forEach((child: HTMLElement) => {
-      if (!this.elements.includes(child)) {
+      if (!newElements.includes(child)) {
         if (typeof child !== 'string') {
           child.remove();
         }
@@ -86,8 +54,7 @@ class Component<P extends Object = any> {
       }
     });
 
-    this.elements[0].isConnected 
-      ? tick(() => this.updated()) : this._unmounted();
+    this.$el.isConnected ? tick(() => this.updated()) : this._unmounted();
   }
 
   reactive(v: object): any {

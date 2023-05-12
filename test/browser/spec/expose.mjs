@@ -150,7 +150,7 @@ $t.it(`Check { expose } props declaration and props reactivity`, () => {
       c.__done = result => resolve(result);
       document.body.append(c);
       c.setAttribute('testing', '2');
-      // c.remove();  
+      c.remove();
       setTimeout(() => resolve(false), 200);
     });
   });

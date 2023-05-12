@@ -64,11 +64,11 @@ export function defineAsCustomElement(Component: any, componentName: string, def
 
     private renderWC() {
       /*
-       * because nano-jsx update needs a "el.parentElement" we need 
-       * to wrap the children in a div when using shadow mode. when
-       * not in shadow mode the parent is the element itself, when
-       * in shadow mode the parent cant be the shadow, so we wrap the
-       * component.
+       * wrap the children in a div when using shadow mode. when
+       * not in shadow mode the root is the element itself, when
+       * in shadow mode the root cant be the shadow, so we wrap 
+       * the component to create a valid root element for the 
+       * lifecycle hooks.
        */
       const contents = _render({
         component: Component,
