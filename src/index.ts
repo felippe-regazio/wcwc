@@ -1,5 +1,5 @@
 import { h, Fragment } from './h';
-import { tick, _render } from './renderer';
+import { _render } from './renderer';
 import { defineAsCustomElement } from './expose';
 
 /**
@@ -30,7 +30,7 @@ class Component<P extends Object = any> {
   }
 
   private _unmounted(): any {
-    tick(() => this.unmounted());
+    queueMicrotask(() => this.unmounted());
   }
 
   public update(update?: any) {
@@ -54,7 +54,9 @@ class Component<P extends Object = any> {
       }
     });
 
-    this.$el.isConnected ? tick(() => this.updated()) : this._unmounted();
+    this.$el.isConnected 
+      ? queueMicrotask(() => this.updated()) 
+      : this._unmounted();
   }
 
   reactive(v: object): any {

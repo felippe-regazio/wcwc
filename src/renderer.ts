@@ -7,19 +7,7 @@
  * smaller than what the NanoJSX framework does. If you are willing to understand
  * this file you should starting by the render and _render functions. They are
  * responsible to link the component current state as a DOM output.
- * 
- * ============================================================================
- * 
- * Tick: Creates a new Microtask. This is important to allow our components to update
- * their lifecycle before a new Event Loop arise. An older implementation was
- * using a Promise that imediatly resolve itself. But now we will prefer to use
- * a new queueMicrotask() API for some reasons here:
- * https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide
- * Old code:
- * export const tick = Promise.prototype.then.bind(Promise.resolve()) as (cb: Function) => any;
  */
-export const tick = queueMicrotask;
-
 export const removeAllChildNodes = (parent: HTMLElement) => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
@@ -132,9 +120,6 @@ export const _render = (comp: any): any => {
   // Class Component (Uninitialized)
   if (comp.isWCWCClass) return renderClassComponent({ component: comp, props: {} })
 
-  // Functional Component
-  if (comp.component && typeof comp.component === 'function') return renderFunctionalComponent(comp)
-
   // Array (render each child and return the array) (is probably a fragment)
   if (Array.isArray(comp)) return (comp.map(c => _render(c)) as any).flat()
 
@@ -154,13 +139,8 @@ export const _render = (comp: any): any => {
   // object
   if (typeof comp === 'object') return []
 
+  // failed
   console.trace('Something unexpected happened while trying to create Inner Element: ', comp);
-}
-
-export const renderFunctionalComponent = (fncComp: any): any => {
-  const { component, props } = fncComp;
-
-  return _render(component(props));
 }
 
 export const renderClassComponent = (classComp: any): any => {
