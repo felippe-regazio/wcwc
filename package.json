@@ -11,7 +11,7 @@
     "clear": "rimraf --sync ./lib",
     "build": "npm run clear && webpack --mode=production",
     "dev": "npm run clear && npm run test:browser",
-    "test:browser": "webpack serve --mode=development --open",
+    "test:browser": "webpack serve --mode=development --https --open",
     "test:module": "node ./test/module/test.cjs && node ./test/module/test.mjs",
     "test": "npm run clear && npm run build && npm run test:module && npm run clear && npm run test:browser"
   },

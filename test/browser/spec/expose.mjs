@@ -42,10 +42,7 @@ $t.it(`Check { expose } with { mode: 'open' } option - Shadow DOM WC`, () => {
   const wrapper = shadowed.shadowRoot.firstChild;
 
   $t.assert('Expose function with { shadow: open } option must create a opened shadowed WC', () => {    
-    const shadowed = document.createElement(`shadowed-component-open`);
-    document.body.append(shadowed);
     const result = !!shadowed.shadowRoot;
-    shadowed.remove();
     return result;
   });
 

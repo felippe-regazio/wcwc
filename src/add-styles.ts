@@ -1,7 +1,7 @@
 /**
  * This function takes a .scss imported file (array style) or a String
  * and adds to the page as a <style> script. First it will extract the
- * style string, then will check if this style were alreadt added. If 
+ * style string, then will check if this style were already added. If 
  * not, will add the style. Elements with shadow dom will have the inner
  * styles always appended.
  * 
@@ -25,7 +25,7 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
       const root = origin.getRootNode() as Document|ShadowRoot;
       const shadowed = root instanceof ShadowRoot;
 
-      if (!shadowed && root?.head?.querySelector(`style[data-dataId=${dataId}]`)) {
+      if (!shadowed && root?.head?.querySelector(`style[data-id=${dataId}]`)) {
         return resolve(true);
       }
       
@@ -33,7 +33,7 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
         textContent: styleContent
       });
   
-      style.dataset.dataId = dataId;
+      style.dataset.id = dataId;
       const target = shadowed ? root : (root as any)?.head;
       target.append(style);
 

@@ -9,14 +9,16 @@
  * responsible to link the component current state as a DOM output.
  */
 export const removeAllChildNodes = (parent: HTMLElement) => {
-  while (parent.firstChild) {
-    parent.removeChild(parent.firstChild);
+  let child: ChildNode|null;
+
+  while (child = parent?.lastChild) {
+    parent.removeChild(child);
   }
 }
 
-export const appendChildren = (element: HTMLElement | SVGElement, children: HTMLElement[], escape = true) => {
+export const appendChildren = (element: HTMLElement | SVGElement, children: HTMLElement[]) => {
   if (!Array.isArray(children)) {
-    appendChildren(element, [ children ], escape);
+    appendChildren(element, [ children ]);
     return;
   }
 
@@ -26,15 +28,15 @@ export const appendChildren = (element: HTMLElement | SVGElement, children: HTML
 
   children.forEach(child => {
     if (Array.isArray(child)) {
-      appendChildren(element, child, escape);
+      appendChildren(element, child);
     } else {
       const c = _render(child) as HTMLElement;
 
       if (typeof c !== 'undefined') {
         if (Array.isArray(c)) {
-          appendChildren(element, c, escape);
+          appendChildren(element, c);
         } else {
-          element.appendChild(c.nodeType == null ? document.createTextNode(c.toString()) : c);
+          element.appendChild(c.nodeType === null ? document.createTextNode(c.toString()) : c);
         }
       }
     }
@@ -112,7 +114,7 @@ export const _render = (comp: any): any => {
   if (comp.tagName) return comp
 
   // TEXTNode (Node.TEXT_NODE === 3)
-  if (comp && comp.nodeType === 3) return comp
+  if (comp && comp.splitText) return comp
 
   // Class Component
   if (comp && comp.component && comp.component.isWCWCClass) return renderClassComponent(comp)

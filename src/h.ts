@@ -45,49 +45,26 @@ export const Fragment = (props: any = {}) => {
 }
 
 export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) => {
-  let ref: any;
-
-  // if children is passed as props, merge with ...children
-  if (props && props.children) {
-    if (Array.isArray(children)) {
-      if (Array.isArray(props.children)) {
-        children = [...props.children, ...children];
-      } else {
-        children.push(props.children);
-      }
-    } else {
-      if (Array.isArray(props.children)) {
-        children = props.children;
-      } else {
-        children = [props.children];
-      }
-    }
+  if (props?.children) {
+    children.concat(props.children || []);
   }
 
-  // if tagNameOrComponent is a component
   if (typeof tagNameOrComponent !== 'string') {
     return {
       component: tagNameOrComponent, 
-      props: { ...props, children: children } 
+      props: { ...props, children },
     }
   }
 
-  const element =
-    tagNameOrComponent === 'svg'
-      ? hNS('svg') as SVGElement
-      : document.createElement(tagNameOrComponent) as HTMLElement;
+  const element = tagNameOrComponent === 'svg'
+    ? hNS('svg') as SVGElement
+    : document.createElement(tagNameOrComponent) as HTMLElement;
 
-  props = parseProps(props, element);
-  // these tags should not be escaped by default (in ssr)
-  const escape = !(['noscript', 'script', 'style'] as any).includes(tagNameOrComponent)
-  appendChildren(element, children, escape);
+  parseProps(props, element);  
+  appendChildren(element, children);
 
   if (props?.ref) {
-    ref = props.ref;
-  }
-
-  if (ref) {
-    ref(element);
+    props.ref(element);
   }
 
   return element as any
@@ -95,7 +72,7 @@ export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) 
 
 export const isEvent = (el: HTMLElement | any, p: string) => {
   // check if the event begins with 'on'
-  if (0 !== p.indexOf('on')) {
+  if (p.startsWith('on')) {
     return false;
   }
 
@@ -141,7 +118,7 @@ export const parseProps = (props: any, element: SVGElement|HTMLElement) => {
 
       continue;
     }
-    
+
     // className
     if (/^className$/i.test(p)) {
       element.setAttribute('class', props[p]);
