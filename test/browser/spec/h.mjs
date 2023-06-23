@@ -96,4 +96,15 @@ $t.it('Check { h } module', () => {
       eventBindingOk
     );
   });
+
+  $t.assert('{ h } with text node children', () => {
+    const children = [ 
+      'Hello',
+      ' ',
+      document.createTextNode('World')
+    ];
+
+    const el = h('div', { children });
+    return el.textContent === 'Hello World';
+  })
 });

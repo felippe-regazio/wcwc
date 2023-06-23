@@ -108,7 +108,7 @@ export function bindProps(props: any, element: SVGElement|HTMLElement) {
     }
 
     // setAttribute
-    if (typeof props[p] !== 'undefined') {
+    if (p !== 'children' && typeof props[p] !== 'undefined') {
       element.setAttribute(p, props[p])
 
       continue;
