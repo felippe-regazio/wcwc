@@ -40,14 +40,12 @@ declare global {
   }
 }
 
-export const Fragment = (props: any = {}) => {
+export function Fragment(props: any = {}) {
   return props.children;
 }
 
-export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) => {
-  if (props?.children) {
-    children.concat(props.children || []);
-  }
+export function h(tagNameOrComponent: string|unknown, props: { [key: string|symbol]: any } = {}, ...children: any[]) {
+  children = [].concat(...children, props.children || []);
 
   if (typeof tagNameOrComponent !== 'string') {
     return {
@@ -60,27 +58,17 @@ export const h = (tagNameOrComponent: any, props: any = {}, ...children: any[]) 
     ? hNS('svg') as SVGElement
     : document.createElement(tagNameOrComponent) as HTMLElement;
 
-  parseProps(props, element);  
+  bindProps(props, element);  
   appendChildren(element, children);
 
   if (props?.ref) {
     props.ref(element);
   }
 
-  return element as any
+  return element as HTMLElement;
 }
 
-export const isEvent = (el: HTMLElement | any, p: string) => {
-  // check if the event begins with 'on'
-  if (p.startsWith('on')) {
-    return false;
-  }
-
-  // check if the event is present in the element as object (null) or as function
-  return typeof el[p] === 'object' || typeof el[p] === 'function';
-};
-
-export const dangerouslySetInnerHTML = (target: SVGElement|HTMLElement, innerHTML?: string) => {
+export function dangerouslySetInnerHTML(target: SVGElement|HTMLElement, innerHTML?: string) {
   const fragment = Object.assign(document.createElement('fragment'), {
     innerHTML: innerHTML || ''
   });
@@ -88,7 +76,7 @@ export const dangerouslySetInnerHTML = (target: SVGElement|HTMLElement, innerHTM
   target.appendChild(fragment);
 };
 
-export const parseProps = (props: any, element: SVGElement|HTMLElement) => {
+export function bindProps(props: any, element: SVGElement|HTMLElement) {
   for (const p in props) {
     // style object to style string
     if (p === 'style' && typeof props[p] === 'object') {
@@ -99,22 +87,15 @@ export const parseProps = (props: any, element: SVGElement|HTMLElement) => {
     }
 
     // handle events
-    if (isEvent(element, p.toLowerCase())) {
+    if (p.toLowerCase().startsWith('on')) {
       element.addEventListener(p.toLowerCase().substring(2), (e: any) => props[p](e));
 
       continue;
     }
     
-    // dangerouslySetInnerHTML
-    if (p === 'dangerouslySetInnerHTML' && props[p].__html) {
-      dangerouslySetInnerHTML(element, props[p].__html);
-
-      continue;
-    }
-    
     // modern dangerouslySetInnerHTML
-    if (p === 'innerHTML' && props[p].__dangerousHtml) {
-      dangerouslySetInnerHTML(element, props[p].__dangerousHtml);
+    if (p === 'innerHTML') {
+      dangerouslySetInnerHTML(element, props[p]);
 
       continue;
     }

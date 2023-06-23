@@ -81,7 +81,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         }
       });
 
-      return h(!!this.shadowRoot ? 'div' : 'template', null, contents);
+      return h(!!this.shadowRoot ? 'div' : 'template', {}, contents);
     }
 
     static get observedAttributes() {
