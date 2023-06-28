@@ -16,40 +16,32 @@ export const removeAllChildNodes = (parent: HTMLElement) => {
   }
 }
 
-export const appendChildren = (element: HTMLElement | SVGElement, children: HTMLElement[]) => {
-  if (!Array.isArray(children)) {
-    appendChildren(element, [ children ]);
+export const appendChildren = (parent: HTMLElement|SVGElement, children: HTMLElement|HTMLElement[]) => {
+  if (Array.isArray(children)) {
+    children.forEach((nestedChild) => appendChildren(parent, nestedChild));
+
     return;
   }
 
-  if (typeof children === 'object') {
-    children = Array.prototype.slice.call(children);
+  const element: HTMLElement = _render(children);
+
+  if (!element) {
+    return;
   }
 
-  children.forEach(child => {
-    if (Array.isArray(child)) {
-      appendChildren(element, child);
-    } else {
-      const c = _render(child) as HTMLElement;
+  if (Array.isArray(element)) {
+    appendChildren(parent, element);
 
-      if (typeof c !== 'undefined') {
-        if (Array.isArray(c)) {
-          appendChildren(element, c);
-        } else {
-          element.appendChild(c.nodeType === null ? document.createTextNode(c.toString()) : c);
-        }
-      }
-    }
-  });
+    return;
+  }
+
+  parent.appendChild(element.nodeType ? element : document.createTextNode(element as unknown as string))
 }
 
 export const hNS = (tag: string) => {
   return document.createElementNS('http://www.w3.org/2000/svg', tag) as SVGElement;
 }
 
-/**
- * A simple component for rendering SVGs
- */
 export const SVG = (props: any) => {
   const child = props.children[0] as SVGElement;
   const attrs = child.attributes;
@@ -63,7 +55,6 @@ export const SVG = (props: any) => {
   return svg as SVGSVGElement
 }
 
-/** Returns the populated parent if available else  one child or an array of children */
 export const render = (component: any, parent: HTMLElement | null = null, removeChildNodes = true) => {
   let el = _render(component);
 
@@ -81,17 +72,9 @@ export const render = (component: any, parent: HTMLElement | null = null, remove
     }
 
     if (el && parent.id && parent.id === el.id && parent.parentElement) {
-      // if parent and child are the same, we replace the parent instead of appending to it
-      parent.parentElement.replaceChild(el, parent)
+      parent.parentElement.replaceChild(el, parent);
     } else {
-      // append element(s) to the parent
-      if (Array.isArray(el)) {
-        el.forEach((e: any) => {
-          appendChildren(parent, _render(e))
-        });
-      } else {
-        appendChildren(parent, _render(el));
-      }
+      appendChildren(parent, el);
     }
 
     return parent;
@@ -146,12 +129,12 @@ export const _render = (comp: any): any => {
 }
 
 export const renderClassComponent = (classComp: any): any => {
-  const { component, props } = classComp;
-  const $component = new component(props);  
-  const rendered = _render($component.render());
+  const { component: Component, props } = classComp;
+  const component = new Component(props);
+  const rendered = _render(component.render());
 
   if (props && props.ref) {
-    props.ref($component);
+    props.ref(component);
   }
 
   return rendered;

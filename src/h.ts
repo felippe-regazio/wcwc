@@ -59,7 +59,7 @@ export function h(tagNameOrComponent: string|unknown, props: { [key: string|symb
     : document.createElement(tagNameOrComponent) as HTMLElement;
 
   bindProps(props, element);  
-  appendChildren(element, children);
+  appendChildren(element, children as unknown as HTMLElement[]);
 
   if (props?.ref) {
     props.ref(element);
@@ -78,7 +78,6 @@ export function dangerouslySetInnerHTML(target: SVGElement|HTMLElement, innerHTM
 
 export function bindProps(props: any, element: SVGElement|HTMLElement) {
   for (const p in props) {
-    // style object to style string
     if (p === 'style' && typeof props[p] === 'object') {
       Object.assign(element.style, props[p]);
       props[p] = element.getAttribute('style');
@@ -86,28 +85,24 @@ export function bindProps(props: any, element: SVGElement|HTMLElement) {
       continue;
     }
 
-    // handle events
     if (p.toLowerCase().startsWith('on')) {
       element.addEventListener(p.toLowerCase().substring(2), (e: any) => props[p](e));
 
       continue;
     }
     
-    // modern dangerouslySetInnerHTML
     if (p === 'innerHTML') {
       dangerouslySetInnerHTML(element, props[p]);
 
       continue;
     }
 
-    // className
     if (/^className$/i.test(p)) {
       element.setAttribute('class', props[p]);
 
       continue;
     }
 
-    // setAttribute
     if (p !== 'children' && typeof props[p] !== 'undefined') {
       element.setAttribute(p, props[p])
 

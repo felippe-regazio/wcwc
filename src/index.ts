@@ -6,12 +6,20 @@ import { defineAsCustomElement } from './expose';
  * This class defines a Component. This is not the web component itself,
  * but the entire Component API that is used to build the whole lifecycle
  * and features to build everything that a WC can render. This will be what
- * a Vanilla Web Component will be binded too, and also defines and controls
- * all the render process, data flow and reactivity inside the web component.
+ * a Vanilla Web Component will be binded to. this class controls all the 
+ * render process, data flow and reactivity inside the web component. This 
+ * is the Web Component Bridge. It has all the features of the Component Class 
+ * an the Expose method, responsible to wrap our WC classe-based components 
+ * into a real Vanilla Web component and bind all the data and lifecycle callbacks. 
+ * The import of { WC } must be idealy deduplicated using your prefered bundler.
  */
-class Component<P extends Object = any> {
+export class WC<P extends Object = any> {
+  static h: typeof h = h;
+  static f: typeof Fragment = Fragment;  
+
   public props: P;
   public $el: HTMLElement;
+  static styles?: StaticStyle[];
   public static isWCWCClass = true;
 
   constructor(props: P) {
@@ -59,7 +67,7 @@ class Component<P extends Object = any> {
       : this._unmounted();
   }
 
-  reactive(v: object): any {
+  public reactive(v: object): any {
     const proxy = (data = {}, cb?: Function) => {
       return new Proxy(data, {
         get: (obj: any, prop: any) => {
@@ -98,6 +106,12 @@ class Component<P extends Object = any> {
 
     return proxy(v || {}, () => this.update());
   }
+
+  public static expose(tagname: string, options?: ComponentConfig) {
+    if (!window.customElements.get(tagname)) {
+      defineAsCustomElement(this, tagname, options);
+    }
+  }  
   
   // @ts-ignore
   public attrChanged(name: string, oldv: any, newv: any) {}
@@ -109,39 +123,4 @@ class Component<P extends Object = any> {
   public render(_update?: any): HTMLElement | void {}
 }
 
-/**
- * This is the Web Component Bridge. It has all the features of the
- * Component Class plus a public API that exposes the h (hyperscript)
- * and f (fragment) functions for JSX compiling (from TS), also holds
- * the styles registered for each component and serve the "expose" method.
- * The method is responsible to call all the funcions that will wrap our
- * classe-based components into a real Vanilla Web component and bind
- * all the data and lifecycle callbacks. We assign the { h, f } functions
- * as static methods of the WCWC because the development environment
- * can be configured to read the hypescript from this methods, so we can
- * import only one class which will automatically support JSX and all
- * the components features. The import of { WC } must be idealy deduplicated
- * using your prefered bundler. Keep in mind that everything starts on the
- * { expose } method. Its the first thing that is executed when registering
- * your component on the runtime, so if you want to understand the entire
- * compiling cycle, you must start by "expose.ts" file. The expose.ts is not
- * the index file because from a development perspective, everything starts
- * by extending this class.
- */
-export class WC extends Component {
-  static h: typeof h = h;
-  static f: typeof Fragment = Fragment;  
-  static styles?: StaticStyle[];
-
-  public static expose(tagname: string, options?: ComponentConfig) {
-    if (!window.customElements.get(tagname)) {
-      defineAsCustomElement(this, tagname, options);
-    }
-  }
-}
-
-/**
- * This export is needed to expose the wcwc library as a public
- * global when in-browser contexts.
- */
 export const wcwc = { WC };

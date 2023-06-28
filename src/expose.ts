@@ -1,6 +1,5 @@
-import { h } from './h';
 import { addStyles } from './add-styles';
-import { _render, render } from './renderer';
+import { _render, render, appendChildren } from './renderer';
 
 /**
  * This function receives a WCWC Class-Based Component and wrap it into
@@ -22,7 +21,6 @@ export function defineAsCustomElement(Component: any, componentName: string, def
   // ------------------ Wraps the WC "Component" on a Native Web Element
 
   customElements.define(componentName, class extends HTMLElement {
-    $rendered: any;
     $component: any;
     $root: ShadowRoot|HTMLElement;    
     private initialized: boolean = false;
@@ -56,8 +54,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         dataId: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
       
-      this.$rendered = this.renderWC();
-      this.appendWC(this.$rendered);
+      this.renderWC();
       this.initialized = true;
       this.$component._mounted();
     }
@@ -81,7 +78,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         }
       });
 
-      return h(!!this.shadowRoot ? 'div' : 'template', {}, contents);
+      appendChildren(this, contents);
     }
 
     static get observedAttributes() {
@@ -90,15 +87,6 @@ export function defineAsCustomElement(Component: any, componentName: string, def
 
     private root() {
       return config.shadow ? this.attachShadow(config.shadow) : this;
-    }
-
-    private appendWC(el: any) {
-      if (!!this.shadowRoot) {
-        el.dataset.wcRoot = true;
-        this.$root.append(el);
-      } else {
-        this.$root.append(...el.childNodes);
-      }
     }
 
     private attrsToProps(): unknown {

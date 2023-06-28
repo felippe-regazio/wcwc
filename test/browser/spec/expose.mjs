@@ -341,3 +341,164 @@ $t.it('Check Component Lifecycle Hooks', () => {
     });
   });  
 });
+
+$t.it('Check Component Lifecycle Hooks { Shadow Mode }', () => {
+  $t.assert('beforeMount', () => {
+    const keycheck = '__wcBeforeMountCheck';
+
+    (class TestComponent extends WC {
+      render() { 
+        this.rendered = true;
+        return 'Hello world'; 
+      }
+      
+      beforeMount() {
+        window[keycheck] = this.rendered;
+      }
+    }).expose('wc-before-mount-shadowed', { shadow: { mode: 'open' } });
+
+    const c = document.createElement('wc-before-mount-shadowed');
+    document.body.append(c);
+    c.remove();
+
+    return window[keycheck] === undefined;
+  });
+
+  $t.assert('mounted', async () => {
+    (class TestComponent extends WC {
+      render() { 
+        return Object.assign(document.createElement('div'), { id: 'mounted', style: 'display: none' }); 
+      }
+      
+      beforeMount() {
+        this.mustBeTrue = !this.$el && !this.isConnected;
+      }
+
+      mounted() {
+        this.$el.__mounted(this.mustBeTrue && this.$el.isConnected);
+      }
+    }).expose('wc-mounted-shadowed', { shadow: { mode: 'open' } });
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-mounted-shadowed');
+      c.__mounted = result => resolve(result);
+      document.body.append(c);
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('beforeUpdate', async () => {
+    (class TestComponent extends WC {
+      data = this.reactive({ content: 1 })
+
+      render() {
+        console.log(this.$el)
+        return Object.assign(document.createElement('div'), {
+          style: 'display: none',
+          textContent: this.data.content
+        }); 
+      }
+
+      mounted() {
+        this.data.content = 2;
+      }
+      
+      beforeUpdate() {
+        this.$el.__beforeUpdate(this.$el.textContent.trim() === '1');
+      }
+    }).expose('wc-before-update-shadowed', { shadow: { mode: 'open' } });
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-before-update-shadowed');
+      c.__beforeUpdate = result => resolve(result);
+      
+      document.body.append(c);
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('updated', async () => {
+    (class TestComponent extends WC {
+      data = this.reactive({ content: 1 })
+
+      render() { 
+        return Object.assign(document.createElement('div'), {
+          style: 'display: none',
+          textContent: this.data.content
+        }); 
+      }
+
+      mounted() {
+        this.data.content = 2;
+      }
+      
+      updated() {
+        this.$el.__updated(this.$el.textContent.trim() === '2');
+      }
+    }).expose('wc-updated-shadowed', { shadow: { mode: 'open' } });
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-updated-shadowed');
+      c.__updated = result => resolve(result);
+      
+      document.body.append(c);
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('unmounted', async () => {
+    (class TestComponent extends WC {
+      render() { 
+        return Object.assign(document.createElement('div'), {
+          style: 'display: none',
+          textContent: 'should be unmounted'
+        }); 
+      }
+
+      mounted() {
+        this.wasmounted = this.$el.isConnected;
+      }
+
+      unmounted() {
+        this.$el.__unmounted(this.wasmounted && !this.$el.isConnected);
+      }
+    }).expose('wc-unmounted-shadowed', { shadow: { mode: 'open' } });
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-unmounted-shadowed');
+      c.__unmounted = result => resolve(result);
+      
+      document.body.append(c);
+      c.remove();
+      
+      setTimeout(() => resolve(false), 200);
+    });
+  });
+
+  $t.assert('attrChanged', async () => {
+    (class TestComponent extends WC {
+      attrs = [];
+
+      render() {
+        return Object.assign(document.createElement('div'), { style: 'display: none' });
+      }
+
+      attrChanged(name, oldv, newv) {
+        this.$el.__done(name === 'testing' && oldv === '1' && newv === '2');
+      }
+    }).expose('wc-attr-changed-shadowed', {
+      shadow: { mode: 'open' },
+      props: {
+        testing: { initial: 1 }
+      }
+    });
+    
+    return new Promise(resolve => {
+      const c = document.createElement('wc-attr-changed-shadowed');
+      c.__done = result => resolve(result);
+      document.body.append(c);
+      c.setAttribute('testing', '2');
+      setTimeout(() => resolve(false), 200);
+    });
+  });  
+});

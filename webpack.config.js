@@ -31,13 +31,7 @@ module.exports = (_env, argv) => {
       library: {
         type: 'umd'
       }
-    },
-    devServer: {
-      port: 9000,
-      static: {
-        directory: path.join(__dirname, 'test', 'browser'),
-      }
-    }    
+    }
   }
 
   if (mode === 'production') {
@@ -48,7 +42,16 @@ module.exports = (_env, argv) => {
   }
 
   if (mode === 'development') {
-    config.devtool = 'inline-source-map';
+    Object.assign(config, {
+      devtool: 'inline-source-map',
+      
+      devServer: {
+        port: 9000,
+        static: {
+          directory: path.join(__dirname, 'test', 'browser'),
+        }
+      }    
+    });
   }
   
   return config;
