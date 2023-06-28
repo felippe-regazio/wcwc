@@ -15,7 +15,7 @@ type ComponentConfigPropValue = {
 type addStylesOptions = {
   dataId: string, 
   styles: StaticStyle[], 
-  origin: HTMLElement|ShadowRoot
+  origin: HTMLElement
 }
 
 type StaticStyle = string | '*.scss';

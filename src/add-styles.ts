@@ -22,7 +22,7 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
         return resolve(true);
       }
       
-      const root = origin.getRootNode() as Document|ShadowRoot;
+      const root = (origin.shadowRoot || origin).getRootNode() as Document|ShadowRoot;
       const shadowed = root instanceof ShadowRoot;
 
       if (!shadowed && root?.head?.querySelector(`style[data-id=${dataId}]`)) {

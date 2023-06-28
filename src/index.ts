@@ -1,4 +1,3 @@
-import { h, Fragment } from './h';
 import { _render } from './renderer';
 import { defineAsCustomElement } from './expose';
 
@@ -14,9 +13,6 @@ import { defineAsCustomElement } from './expose';
  * The import of { WC } must be idealy deduplicated using your prefered bundler.
  */
 export class WC<P extends Object = any> {
-  static h: typeof h = h;
-  static f: typeof Fragment = Fragment;  
-
   public props: P;
   public $el: HTMLElement;
   static styles?: StaticStyle[];

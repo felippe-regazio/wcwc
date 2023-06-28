@@ -12,22 +12,21 @@ import { _render, render, appendChildren } from './renderer';
  * @param definedConfig 
  */
 export function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
-  const config = Object.assign({} as ComponentConfig, {
-    props: {},
-    shadow: undefined,
-    ...(definedConfig || {}),
-  });
+  const config: ComponentConfig = Object.assign({ props: {}, shadow: undefined }, definedConfig);
 
   // ------------------ Wraps the WC "Component" on a Native Web Element
 
   customElements.define(componentName, class extends HTMLElement {
-    $component: any;
-    $root: ShadowRoot|HTMLElement;    
     private initialized: boolean = false;
+    $component: any;
 
     constructor() {
       super();
-      this.$root = this.root();
+      
+      if (config.shadow) {
+        this.attachShadow(config.shadow);
+      }
+      
       Component.prototype._beforeMount();
     }
 
@@ -49,7 +48,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
 
     init() {
       addStyles({
-        origin: this.$root,
+        origin: this,
         styles: Component.styles || [],
         dataId: this.tagName.toLocaleLowerCase(), 
       }).catch(void 0);
@@ -60,13 +59,6 @@ export function defineAsCustomElement(Component: any, componentName: string, def
     }
 
     private renderWC() {
-      /*
-       * wrap the children in a div when using shadow mode. when
-       * not in shadow mode the root is the element itself, when
-       * in shadow mode the root cant be the shadow, so we wrap 
-       * the component to create a valid root element for the 
-       * lifecycle hooks.
-       */
       const contents = _render({
         component: Component,
 
@@ -83,10 +75,6 @@ export function defineAsCustomElement(Component: any, componentName: string, def
 
     static get observedAttributes() {
       return Object.keys(config.props);
-    }
-
-    private root() {
-      return config.shadow ? this.attachShadow(config.shadow) : this;
     }
 
     private attrsToProps(): unknown {
