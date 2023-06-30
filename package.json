@@ -11,9 +11,10 @@
     "clear": "rimraf --sync ./lib",
     "build": "npm run clear && webpack --mode=production",
     "dev": "npm run clear && npm run test:browser",
-    "test:browser": "webpack serve --mode=development --https --open",
-    "test:module": "node ./test/module/test.cjs && node ./test/module/test.mjs",
-    "test": "npm run clear && npm run build && npm run test:module && npm run clear && npm run test:browser"
+    "test:browser": "webpack serve --mode=development --open",
+    "test:module:index": "node ./test/modules/index/test.cjs && node ./test/modules/index/test.mjs",
+    "test:module:jsx": "node ./test/modules/jsx/test.cjs && node ./test/modules/jsx/test.mjs",    
+    "test": "npm run clear && npm run build && npm run test:module:index && npm run test:module:jsx && npm run clear && npm run test:browser"
   },
   "keywords": [],
   "author": "Felippe Regazio",

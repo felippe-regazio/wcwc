@@ -8,6 +8,7 @@ module.exports = (_env, argv) => {
     mode,
     target: 'web',
     entry: {
+      jsx: path.resolve('src', 'jsx.ts'),
       index: path.resolve('src', 'index.ts')
     },
     resolve: {

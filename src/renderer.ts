@@ -16,7 +16,13 @@ export const removeAllChildNodes = (parent: HTMLElement) => {
   }
 }
 
-export const appendChildren = (parent: HTMLElement|SVGElement, children: HTMLElement|HTMLElement[]) => {
+export const appendChildren = (parent: HTMLElement|SVGElement|ShadowRoot, children: HTMLElement|HTMLElement[]) => {
+  if ((parent as any)?.shadowRoot) {
+    appendChildren((parent as any).shadowRoot, children);
+
+    return;
+  }
+
   if (Array.isArray(children)) {
     children.forEach((nestedChild) => appendChildren(parent, nestedChild));
 

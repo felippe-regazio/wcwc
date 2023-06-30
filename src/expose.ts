@@ -11,7 +11,7 @@ import { _render, render, appendChildren } from './renderer';
  * @param componentName 
  * @param definedConfig 
  */
-export function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
+export async function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
   const config: ComponentConfig = Object.assign({ props: {}, shadow: undefined }, definedConfig);
 
   // ------------------ Wraps the WC "Component" on a Native Web Element
@@ -70,7 +70,7 @@ export function defineAsCustomElement(Component: any, componentName: string, def
         }
       });
 
-      appendChildren(this, contents);
+      appendChildren(this.shadowRoot || this, contents);
     }
 
     static get observedAttributes() {

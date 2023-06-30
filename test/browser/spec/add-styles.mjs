@@ -61,8 +61,8 @@ $t.it('Check add-styles module', () => {
     });
   });
   
-  $t.assert('Open-Shadowed components must scope styles inside the shadow', async () => {
-    const styleContent = '--style-test: 1';
+  $t.assert('Shadowed components must adopt style sheet internally', async () => {
+    const styleContent = ':host { display: none; }';
       
     (class ShadowedOpened extends WC {
       static styles = [ styleContent ]
@@ -76,12 +76,9 @@ $t.it('Check add-styles module', () => {
   
     const shadowed = document.createElement('shadowed-open-styled-component');
     document.body.append(shadowed);
-    const style = shadowed.shadowRoot.firstChild;
-    const styleContentOk = style.innerHTML === styleContent;
-    const styleDataIdOk = style.dataset.id === 'shadowed-open-styled-component';
-
+    const adoptedStyle = shadowed.shadowRoot.adoptedStyleSheets[0].cssRules[0].cssText;
     shadowed.remove();
 
-    return style && styleContentOk && styleDataIdOk;
-  });  
+    return adoptedStyle === styleContent;
+  });
 });

@@ -23,6 +23,10 @@ export class WC<P extends Object = any> {
     this.$el = (props as any).$el;
   }
   
+  private get $host(): HTMLElement|ShadowRoot {
+    return this.$el.shadowRoot || this.$el;
+  }
+
   // @ts-ignore
   private _beforeMount(): any {
     this.beforeMount();
@@ -40,12 +44,12 @@ export class WC<P extends Object = any> {
   public update(update?: any) {
     this.beforeUpdate();
 
-    const oldElements = Array.from(this.$el.childNodes) as any;
+    const oldElements = Array.from(this.$host.childNodes) as any;
     const rendered = _render(this.render(update)) as any;
     const newElements = Array.isArray(rendered) ? rendered : [ rendered ];
     
     newElements.forEach((child: HTMLElement) => {
-      this.$el.insertBefore(child, oldElements[0]);
+      this.$host.insertBefore(child, oldElements[0]);
     });
 
     oldElements.forEach((child: HTMLElement) => {

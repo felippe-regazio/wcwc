@@ -25,17 +25,24 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
       const root = (origin.shadowRoot || origin).getRootNode() as Document|ShadowRoot;
       const shadowed = root instanceof ShadowRoot;
 
-      if (!shadowed && root?.head?.querySelector(`style[data-id=${dataId}]`)) {
-        return resolve(true);
+      if (!shadowed) {
+        if (root?.head?.querySelector(`style[data-id=${dataId}]`)) {
+          return resolve(true);
+        }
+
+        const style = Object.assign(document.createElement('style'), {
+          textContent: styleContent
+        });
+    
+        style.dataset.id = dataId;
+        root?.head.append(style);  
       }
-      
-      const style = Object.assign(document.createElement('style'), {
-        textContent: styleContent
-      });
-  
-      style.dataset.id = dataId;
-      const target = shadowed ? root : (root as any)?.head;
-      target.append(style);
+
+      if (shadowed) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(styleContent);
+        root.adoptedStyleSheets = [ sheet ];        
+      }
 
       return resolve(true);
     } catch(error) {

@@ -9,9 +9,11 @@
     index.js is served from memory by webpack-dev-server
     and mimics the lib/index.js but with most recent code.
     the index will expose ths globals { WC, wcwc } that 
-    can be accessed from the spec es6 modules to be tested
+    can be accessed from the spec es6 modules to be tested.
+    The same will happen for jsx module and its exports.
   -->
   <script src="index.js"></script>
+  <script src="jsx.js"></script>
 </head>
 <body>
   <h1>WCWC Browser Tests - Results:</h1>

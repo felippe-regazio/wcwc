@@ -1,4 +1,5 @@
-import './precheck.mjs';
+import './pre-check.mjs';
 import './expose.mjs';
 import './add-styles.mjs';
-import './h.mjs';
+import './jsx.mjs';
+import './wc-component.mjs';

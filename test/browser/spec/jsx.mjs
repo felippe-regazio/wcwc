@@ -1,7 +1,5 @@
 import { Tester } from '../tester/index.mjs';
 
-const h = WC.h;
-const Fragment = WC.f;
 const $t = new Tester();
 
 $t.it('Check { h } module', () => {
@@ -107,4 +105,32 @@ $t.it('Check { h } module', () => {
     const el = h('div', { children });
     return el.textContent === 'Hello World';
   })
+});
+
+$t.it('Check { Fragment } &lt;>&lt;/> behavior', () => {
+  $t.assert('Fragment() === undefined', () => {
+    return Fragment() === undefined;
+  });
+
+  $t.assert('Fragment({}) === undefined', () => {
+    return Fragment({}) === undefined;
+  });
+
+  [
+    null,
+    undefined,
+    true,
+    '',
+    [],
+    'Testing',
+    Symbol('Test'),
+    document.createElement('span'),
+    document.createTextNode('Testing')
+  ].forEach(item => {
+    const testLabel = (item?.toString() || JSON.stringify(item)) + ' : ' + typeof item;
+
+    $t.assert(`Fragment({ children: ${testLabel} })`, () => {
+      return  Object.is(Fragment({ children: item }), item);
+    });
+  });
 });

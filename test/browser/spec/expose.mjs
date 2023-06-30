@@ -393,7 +393,7 @@ $t.it('Check Component Lifecycle Hooks { Shadow Mode }', () => {
       }
       
       beforeUpdate() {
-        this.$el.__beforeUpdate(this.$el.textContent.trim() === '1');
+        this.$el.__beforeUpdate(this.$el.shadowRoot.textContent.trim() === '1');
       }
     }).expose('wc-before-update-shadowed', { shadow: { mode: 'open' } });
     
@@ -422,7 +422,7 @@ $t.it('Check Component Lifecycle Hooks { Shadow Mode }', () => {
       }
       
       updated() {
-        this.$el.__updated(this.$el.textContent.trim() === '2');
+        this.$el.__updated(this.$el.shadowRoot.textContent.trim() === '2');
       }
     }).expose('wc-updated-shadowed', { shadow: { mode: 'open' } });
     

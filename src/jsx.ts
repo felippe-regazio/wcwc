@@ -112,3 +112,5 @@ export function bindProps(props: any, element: SVGElement|HTMLElement) {
 
   return props;
 }
+
+export const jsx = { h, Fragment };

@@ -1,4 +1,4 @@
-import WCWC from '../../lib/index.js';
+import WCWC from '../../../lib/index.js';
 import check from './checker.js';
 const { WC, wcwc } = WCWC;
 
