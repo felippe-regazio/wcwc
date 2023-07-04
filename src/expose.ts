@@ -1,5 +1,5 @@
 import { addStyles } from './add-styles';
-import { _render, render, appendChildren } from './renderer';
+import { renderClassComponent, render, appendChildren } from './renderer';
 
 /**
  * This function receives a WCWC Class-Based Component and wrap it into
@@ -22,11 +22,7 @@ export async function defineAsCustomElement(Component: any, componentName: strin
 
     constructor() {
       super();
-      
-      if (config.shadow) {
-        this.attachShadow(config.shadow);
-      }
-      
+
       Component.prototype._beforeMount();
     }
 
@@ -35,6 +31,10 @@ export async function defineAsCustomElement(Component: any, componentName: strin
     }
 
     connectedCallback() {
+      if (config.shadow || this.getAttribute('shadow')) {
+        this.attachShadow((config.shadow || { mode: this.getAttribute('shadow') }) as ShadowRootInit);
+      }
+
       /*
        * The constructor for a custom element is not supposed to read or write its DOM. 
        * It shouldn't create child elements or modify attributes. That work needs to be 
@@ -59,7 +59,7 @@ export async function defineAsCustomElement(Component: any, componentName: strin
     }
 
     private renderWC() {
-      const contents = _render({
+      const contents = renderClassComponent({
         component: Component,
 
         props: {

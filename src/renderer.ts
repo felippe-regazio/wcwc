@@ -63,6 +63,7 @@ export const SVG = (props: any) => {
 
 export const render = (component: any, parent: HTMLElement | null = null, removeChildNodes = true) => {
   let el = _render(component);
+  console.log(parent);
 
   if (Array.isArray(el)) {
     el = el.map(e => _render(e));

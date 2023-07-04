@@ -34,6 +34,10 @@ export class Tester {
           #tester-output .tester-output-error {
             color: #C70039
           }
+
+          #tester-output p:empty {
+            display: none;
+          }
         `
       });
 
@@ -65,6 +69,11 @@ export class Tester {
   async assert(msg, cb) {
     let result;
     let holder = this.log('<p></p>');
+
+    if (typeof msg !== 'string') {
+      holder.append(msg);
+      return;
+    }
 
     try {
       result = await cb();

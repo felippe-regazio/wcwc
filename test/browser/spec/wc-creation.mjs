@@ -2,7 +2,7 @@ import { Tester } from '../tester/index.mjs';
 
 const $t = new Tester();
 
-$t.it('Checking Component API behavior (No shadow)', () => {
+$t.it('Check Component API behavior (No shadow)', () => {
   const create = (tag, attrs = {}) => Object.assign(document.createElement(tag), attrs);
 
   (class WCCounter extends WC {
@@ -25,7 +25,7 @@ $t.it('Checking Component API behavior (No shadow)', () => {
     `];
 
     render() {
-      const t = create('div', { innerHTML: `<p>Count: ${this.data.count}</p>` });
+      const t = create('div', { innerHTML: `<p>Count: ${this.data.count}</p>`, title: 'Not shadowed counter' });
       t.append(create('button', { textContent: 'Dec', onclick: () => this.data.count--, style: 'margin-right: 8px' }));
       t.append(create('button', { textContent: 'Inc', onclick: () => this.data.count++ }));
       return t;
@@ -33,7 +33,7 @@ $t.it('Checking Component API behavior (No shadow)', () => {
   }).expose('wc-counter');
   
   const $counter = document.createElement('wc-counter');
-  document.body.append($counter);
+  $t.assert($counter);
 
   $t.assert('Checks the component initial state', () => {
     return $counter.querySelector('p').textContent === 'Count: 0';
@@ -50,7 +50,7 @@ $t.it('Checking Component API behavior (No shadow)', () => {
   });
 });
 
-$t.it('Checking Component API behavior (Shadowed)', () => {
+$t.it('Check Component API behavior (Shadowed)', () => {
   const create = (tag, attrs = {}) => Object.assign(document.createElement(tag), attrs);
 
   (class WCCounter extends WC {
@@ -73,7 +73,7 @@ $t.it('Checking Component API behavior (Shadowed)', () => {
     `];
 
     render() {
-      const t = create('div', { innerHTML: `<p>Count: ${this.data.count}</p>` });
+      const t = create('div', { innerHTML: `<p>Count: ${this.data.count}</p>`, title: 'Shadowed counter' });
       t.append(create('button', { textContent: 'Dec', onclick: () => this.data.count--, style: 'margin-right: 8px' }));
       t.append(create('button', { textContent: 'Inc', onclick: () => this.data.count++ }));
       return t;
@@ -83,7 +83,7 @@ $t.it('Checking Component API behavior (Shadowed)', () => {
   });
   
   const $counter = document.createElement('wc-counter-shadowed');
-  document.body.append($counter);
+  $t.assert($counter);
 
   $t.assert('Checks the component initial state', () => {
     return $counter.shadowRoot.querySelector('p').textContent === 'Count: 0';
@@ -97,5 +97,39 @@ $t.it('Checking Component API behavior (Shadowed)', () => {
   $t.assert('Checks the component reactive state (count -)', () => {
     $counter.shadowRoot.querySelector('button').click();
     return $counter.shadowRoot.querySelector('p').textContent === 'Count: 0';
+  });
+
+  $t.assert('Special Attribute shadow: Component initialized with [shadow] attribute must be shadowed', () => {
+    const content = 'Testing shadow special ATTR';
+
+    (class WCTestShadowAttr extends WC {
+      static styles = [`
+        :host {
+          border: solid 1px #bbb;
+          display: block;
+          padding: 16px;
+          max-width: 300px;
+          border-radius: 8px;
+          margin: 16px 0;
+        }
+      `];
+  
+      render() {
+        return content;
+      };
+    }).expose('wc-test-shadow-attr');
+  
+    const $wcTestShadowAttr = document.createElement('wc-test-shadow-attr');
+    $wcTestShadowAttr.setAttribute('shadow', 'open');
+    $t.assert($wcTestShadowAttr);
+  
+    const result = (
+      $wcTestShadowAttr.getAttribute('shadow') === 'open' &&
+      $wcTestShadowAttr.shadowRoot &&
+      $wcTestShadowAttr.shadowRoot.textContent === content
+    );
+
+    $wcTestShadowAttr.remove();
+    return result;
   });
 });
