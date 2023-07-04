@@ -29,6 +29,10 @@ export const appendChildren = (parent: HTMLElement|SVGElement|ShadowRoot, childr
     return;
   }
 
+  if (!children) {
+    return;
+  }
+
   const element: HTMLElement = _render(children);
 
   if (!element) {
@@ -61,9 +65,8 @@ export const SVG = (props: any) => {
   return svg as SVGSVGElement
 }
 
-export const render = (component: any, parent: HTMLElement | null = null, removeChildNodes = true) => {
+export const render = (component: any) => {
   let el = _render(component);
-  console.log(parent);
 
   if (Array.isArray(el)) {
     el = el.map(e => _render(e));
@@ -73,21 +76,7 @@ export const render = (component: any, parent: HTMLElement | null = null, remove
     }
   }
 
-  if (parent) {
-    if (removeChildNodes) {
-      removeAllChildNodes(parent);
-    }
-
-    if (el && parent.id && parent.id === el.id && parent.parentElement) {
-      parent.parentElement.replaceChild(el, parent);
-    } else {
-      appendChildren(parent, el);
-    }
-
-    return parent;
-  } else {
-    return el;
-  }
+  return el;
 }
 
 export const _render = (comp: any): any => {

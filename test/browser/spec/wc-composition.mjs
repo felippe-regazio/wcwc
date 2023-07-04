@@ -91,8 +91,10 @@ $t.it('Check component composition', () => {
   });  
 
   $t.assert('Props Children vs Element Children', () => {
+    const expectedContent = 'Element initial HTML was overwrited by render';
+
     (class wcPropsVsChildren extends WC {
-      render() { return 'Element initial HTML was overwrited by render' };
+      render() { return expectedContent };
     }).expose('wc-props-vs-children');
 
     const $wcPropsVsChildren = Object.assign(document.createElement('wc-props-vs-children'), {
@@ -100,5 +102,9 @@ $t.it('Check component composition', () => {
     });
 
     $t.assert($wcPropsVsChildren);
+    const result = $wcPropsVsChildren.textContent === expectedContent;
+    $wcPropsVsChildren.remove();
+
+    return result;
   });
 });

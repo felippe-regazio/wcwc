@@ -59,18 +59,25 @@ export async function defineAsCustomElement(Component: any, componentName: strin
     }
 
     private renderWC() {
+      const root = (this.shadowRoot || this);
+      const f = new DocumentFragment();
+
+      while(root.lastChild) {
+        f.append(root.lastChild);
+      }
+
       const contents = renderClassComponent({
         component: Component,
 
         props: {
           $el: this,
           ref: (r: any) => (this.$component = r),
-          children: render(Array.from(this.childNodes)),
+          children: render(Array.from(f.childNodes)),
           ...(this.attrsToProps() || {})
         }
       });
 
-      appendChildren(this.shadowRoot || this, contents);
+      appendChildren(root, contents);
     }
 
     static get observedAttributes() {

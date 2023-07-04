@@ -35,10 +35,10 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
         });
     
         style.dataset.id = dataId;
-        root?.head.append(style);  
+        root?.head?.append(style);  
       }
 
-      if (shadowed) {
+      if (shadowed && root) {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(styleContent);
         root.adoptedStyleSheets = [ sheet ];        
@@ -46,7 +46,7 @@ export async function addStyles(options: addStylesOptions): Promise<boolean> {
 
       return resolve(true);
     } catch(error) {
-      console.error(error);
+      console.error(error, options);
       return reject(false);
     }
   })
