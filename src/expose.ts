@@ -1,6 +1,20 @@
 import { addStyles } from './add-styles';
 import { renderClassComponent, render, appendChildren } from './renderer';
 
+export const parseDefinedProps = (props: unknown[]): ComponentConfigDefinedProps => {
+  return (props || []).reduce((obj: any, item: any) => {
+    if (typeof item === 'string') {
+      obj[item] = {};
+    }
+
+    if (typeof item === 'object' && item.name) {
+      obj[item.name] = item;
+    }
+
+    return obj;
+  }, {}) as ComponentConfigDefinedProps;
+}
+
 /**
  * This function receives a WCWC Class-Based Component and wrap it into
  * a Vanilla Web Component. All the component lifecycle and data flow will
@@ -11,8 +25,11 @@ import { renderClassComponent, render, appendChildren } from './renderer';
  * @param componentName 
  * @param definedConfig 
  */
-export async function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ComponentConfig) {
-  const config: ComponentConfig = Object.assign({ props: {}, shadow: undefined }, definedConfig);
+export async function defineAsCustomElement(Component: any, componentName: string, definedConfig?: ExposeConfig) {
+  const config = {
+    shadow: definedConfig?.shadow,
+    props: parseDefinedProps(definedConfig?.props || []),
+  } as ComponentConfig;
 
   // ------------------ Wraps the WC "Component" on a Native Web Element
 
@@ -63,7 +80,7 @@ export async function defineAsCustomElement(Component: any, componentName: strin
       const f = new DocumentFragment();
 
       while(root.lastChild) {
-        f.append(root.lastChild);
+        f.prepend(root.lastChild);
       }
 
       const contents = renderClassComponent({
@@ -90,9 +107,9 @@ export async function defineAsCustomElement(Component: any, componentName: strin
           const attrConfig = config.props[attrName];
 
           if (!this.getAttribute(attrName) && attrConfig.default) {
-            this.setAttribute(attrName, String(attrConfig.default));
+            this.setAttribute(attrName, String(attrConfig.default));        
           }
-          
+
           // mirror current attribute value to incremental props
           data[attrName] = this.getAttribute(attrName);
           
@@ -108,10 +125,11 @@ export async function defineAsCustomElement(Component: any, componentName: strin
       return new Promise((resolve, reject) => {
         try {
           const attr = config.props[name];
-
+          
           if (attr && attr.css) {
+            const prefix = this?.tagName.toLowerCase();
             const propName = typeof attr.css === 'string' ? attr.css : name;
-            this.style.setProperty(`--wc-attr-${propName}`, String(value || attr.default || ''));
+            this.style.setProperty(`--${prefix}-${propName}`, String(value || attr.default || ''));
           }
 
           return resolve(true);

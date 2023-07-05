@@ -104,7 +104,7 @@ export class WC<P extends Object = any> {
     });
   }
 
-  public static expose(tagname: string, options?: ComponentConfig) {
+  public static expose(tagname: string, options?: ExposeConfig) {
     if (!window.customElements.get(tagname)) {
       defineAsCustomElement(this, tagname, options);
     }

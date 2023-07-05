@@ -1,7 +1,16 @@
+type ExposeConfig = {
+  shadow?: ShadowRootInit,
+  props: unknown[]
+}
+
 type ComponentConfig = {
   shadow?: ShadowRootInit,
-  props: ComponentConfigProps
+  props: ComponentConfigDefinedProps
 }
+
+type ComponentConfigDefinedProps = { 
+  [key: string|symbol|number]: ComponentConfigPropValue
+};
 
 type ComponentConfigProps = { 
   [key: string|symbol|number]: ComponentConfigPropValue
