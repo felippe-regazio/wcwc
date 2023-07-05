@@ -27,16 +27,6 @@ export class WC<P extends Object = any> {
     return this.$el.shadowRoot || this.$el;
   }
 
-  // @ts-ignore
-  private _beforeMount(): any {
-    this.beforeMount();
-  }
-  
-  // @ts-ignore
-  private _mounted(): any {
-    this.mounted();
-  }
-
   private _unmounted(): any {
     queueMicrotask(() => this.unmounted());
   }
@@ -67,44 +57,47 @@ export class WC<P extends Object = any> {
       : this._unmounted();
   }
 
-  public reactive(v: object): any {
-    const proxy = (data = {}, cb?: Function) => {
-      return new Proxy(data, {
-        get: (obj: any, prop: any) => {
-          if (prop === '_isProxy') {
-            return true;
-          }
-  
-          if ((Array.isArray(obj[prop]) || typeof obj[prop] === 'object') && !obj[prop]._isProxy) {
-            obj[prop] = proxy(obj[prop], cb);
-          }
-          
-          if (typeof obj[prop] === 'function') {
-            return obj[prop]();
-          } else {
-            return obj[prop];
-          }
-        },
-  
-        set: (obj: any, prop: any, value: any) => {
-          if (obj[prop] === value) {
-            return true
-          };
-  
-          obj[prop] = value;
-          cb && cb();
-          return true;
-        },
-  
-        deleteProperty: (obj: any, prop: any) => {
-          delete obj[prop];
-          cb && cb();
+  public store(data: object, _cb?: Function): any {
+    const cb = _cb ? _cb.bind(this) : this.update.bind(this);
+
+    return new Proxy(data, {
+      get: (obj: any, prop: any) => {
+        const isArrayOrObject = Array.isArray(obj[prop]) || typeof obj[prop] === 'object';
+        const isProxyOrCircular = !obj[prop]._isProxy && !Object.is(obj[prop], data);
+
+        if (prop === '_isProxy') {
           return true;
         }
-      });
-    };
 
-    return proxy(v || {}, () => this.update());
+        if (isArrayOrObject && !isProxyOrCircular) {
+          obj[prop] = this.store(obj[prop], _cb);
+        }
+        
+        if (typeof obj[prop] === 'function') {
+          return obj[prop].bind(this)();
+        }
+
+        return obj[prop];
+      },
+
+      set: (obj: any, prop: any, value: any) => {
+        if (obj[prop] === value) {
+          return true
+        };
+
+        obj[prop] = value;
+        cb();
+
+        return true;
+      },
+
+      deleteProperty: (obj: any, prop: any) => {
+        delete obj[prop];
+        cb();
+
+        return true;
+      }
+    });
   }
 
   public static expose(tagname: string, options?: ComponentConfig) {
@@ -112,7 +105,7 @@ export class WC<P extends Object = any> {
       defineAsCustomElement(this, tagname, options);
     }
   }  
-  
+
   // @ts-ignore
   public attrChanged(name: string, oldv: any, newv: any) {}
   public beforeMount(): any {}

@@ -65,7 +65,7 @@ export const SVG = (props: any) => {
   return svg as SVGSVGElement
 }
 
-export const render = (component: any) => {
+export const render = (component: unknown) => {
   let el = _render(component);
 
   if (Array.isArray(el)) {

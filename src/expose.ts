@@ -23,7 +23,7 @@ export async function defineAsCustomElement(Component: any, componentName: strin
     constructor() {
       super();
 
-      Component.prototype._beforeMount();
+      Component.prototype.beforeMount();
     }
 
     disconnectedCallback() {
@@ -55,7 +55,7 @@ export async function defineAsCustomElement(Component: any, componentName: strin
       
       this.renderWC();
       this.initialized = true;
-      this.$component._mounted();
+      this.$component.mounted();
     }
 
     private renderWC() {

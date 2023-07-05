@@ -6,7 +6,7 @@ $t.it('Check Component API behavior (No shadow)', () => {
   const create = (tag, attrs = {}) => Object.assign(document.createElement(tag), attrs);
 
   (class WCCounter extends WC {
-    data = this.reactive({ count: 0 });
+    data = this.store({ count: 0 });
 
     static styles = [`
       wc-counter { 
@@ -54,7 +54,7 @@ $t.it('Check Component API behavior (Shadowed)', () => {
   const create = (tag, attrs = {}) => Object.assign(document.createElement(tag), attrs);
 
   (class WCCounter extends WC {
-    data = this.reactive({ count: 0 });
+    data = this.store({ count: 0 });
 
     static styles = [`
       :host { 

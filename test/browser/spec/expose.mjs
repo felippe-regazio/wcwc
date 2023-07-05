@@ -220,7 +220,7 @@ $t.it('Check Component Lifecycle Hooks', () => {
 
   $t.assert('beforeUpdate', async () => {
     (class TestComponent extends WC {
-      data = this.reactive({ content: 1 })
+      data = this.store({ content: 1 })
 
       render() { 
         return Object.assign(document.createElement('div'), {
@@ -249,7 +249,7 @@ $t.it('Check Component Lifecycle Hooks', () => {
 
   $t.assert('updated', async () => {
     (class TestComponent extends WC {
-      data = this.reactive({ content: 1 })
+      data = this.store({ content: 1 })
 
       render() { 
         return Object.assign(document.createElement('div'), {
@@ -379,7 +379,7 @@ $t.it('Check Component Lifecycle Hooks { Shadow Mode }', () => {
 
   $t.assert('beforeUpdate', async () => {
     (class TestComponent extends WC {
-      data = this.reactive({ content: 1 })
+      data = this.store({ content: 1 })
 
       render() {
         return Object.assign(document.createElement('div'), {
@@ -408,7 +408,7 @@ $t.it('Check Component Lifecycle Hooks { Shadow Mode }', () => {
 
   $t.assert('updated', async () => {
     (class TestComponent extends WC {
-      data = this.reactive({ content: 1 })
+      data = this.store({ content: 1 })
 
       render() { 
         return Object.assign(document.createElement('div'), {
