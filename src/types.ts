@@ -8,7 +8,7 @@ type ComponentConfigProps = {
 };
 
 type ComponentConfigPropValue = { 
-  initial: unknown, 
+  default: unknown, 
   css?: boolean|string
 };
 

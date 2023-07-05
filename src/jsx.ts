@@ -44,13 +44,17 @@ export function Fragment(props: any = {}) {
   return props.children;
 }
 
-export function h(tagNameOrComponent: string|unknown, props: { [key: string|symbol]: any } = {}, ...children: any[]) {
-  children = [].concat(...children, props.children || []);
+export function h(tagNameOrComponent: string|unknown, props: { [key: string|symbol]: any }, ...children: any[]) {
+  children = [].concat(...children, props?.children);
+
+  if (Object.is(tagNameOrComponent, Fragment)) {
+    return Fragment({ ...(props || {}), children });
+  }
 
   if (typeof tagNameOrComponent !== 'string') {
     return {
-      component: tagNameOrComponent, 
-      props: { ...props, children },
+      component: tagNameOrComponent,
+      props: { ...(props || {}), children },
     }
   }
 
@@ -77,6 +81,10 @@ export function dangerouslySetInnerHTML(target: SVGElement|HTMLElement, innerHTM
 };
 
 export function bindProps(props: any, element: SVGElement|HTMLElement) {
+  if (!props) {
+    return
+  };
+
   for (const p in props) {
     if (p === 'style' && typeof props[p] === 'object') {
       Object.assign(element.style, props[p]);
@@ -109,8 +117,6 @@ export function bindProps(props: any, element: SVGElement|HTMLElement) {
       continue;
     }
   }
-
-  return props;
 }
 
 export const jsx = { h, Fragment };

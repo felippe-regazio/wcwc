@@ -89,8 +89,8 @@ export async function defineAsCustomElement(Component: any, componentName: strin
         .reduce((data: any, attrName: string) => {
           const attrConfig = config.props[attrName];
 
-          if (!this.getAttribute(attrName) && attrConfig.initial) {
-            this.setAttribute(attrName, String(attrConfig.initial));
+          if (!this.getAttribute(attrName) && attrConfig.default) {
+            this.setAttribute(attrName, String(attrConfig.default));
           }
           
           // mirror current attribute value to incremental props
@@ -111,7 +111,7 @@ export async function defineAsCustomElement(Component: any, componentName: strin
 
           if (attr && attr.css) {
             const propName = typeof attr.css === 'string' ? attr.css : name;
-            this.style.setProperty(`--wc-attr-${propName}`, String(value || attr.initial || ''));
+            this.style.setProperty(`--wc-attr-${propName}`, String(value || attr.default || ''));
           }
 
           return resolve(true);
